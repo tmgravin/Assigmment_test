@@ -23,11 +23,11 @@ public class RecurringBudgets {
     private Timestamp updatedAt;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = true) // Optional side
+    @JoinColumn(name = "user_id", nullable = true,referencedColumnName = "id") // Optional side
     private Users users;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_id",nullable = true)
+    @JoinColumn(name = "payment_id",nullable = true,referencedColumnName = "id")
     private Payments payments;
 
 }
