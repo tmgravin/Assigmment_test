@@ -1,4 +1,4 @@
-package com.intern.msp.Enum;
+package com.intern.msp.enumerated;
 
 public enum LevelOfExperience {
     ENTRY,

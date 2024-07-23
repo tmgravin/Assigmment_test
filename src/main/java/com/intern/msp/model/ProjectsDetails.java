@@ -1,6 +1,6 @@
 package com.intern.msp.model;
 
-import com.intern.msp.Enum.*;
+import com.intern.msp.enumerated.*;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -37,10 +37,10 @@ public class ProjectsDetails {
     @Column(name = "project_url", nullable = false, columnDefinition = "VARCHAR(255)")
     private String projectUrl;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
     private Timestamp createdAt;
 
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false)
     private Timestamp updatedAt;
 
     @OneToOne(fetch = FetchType.LAZY)
