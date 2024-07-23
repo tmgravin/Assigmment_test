@@ -1,6 +1,6 @@
 package com.intern.msp.model;
 
-import com.intern.msp.Enum.*;
+import com.intern.msp.eum.*;
 import jakarta.persistence.*;
 import lombok.Data;
 

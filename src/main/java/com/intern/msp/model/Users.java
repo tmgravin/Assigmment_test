@@ -1,7 +1,7 @@
 package com.intern.msp.model;
 
-import com.intern.msp.Enum.LoginType;
-import com.intern.msp.Enum.UserType;
+import com.intern.msp.eum.LoginType;
+import com.intern.msp.eum.UserType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -29,7 +29,6 @@ public class Users {
     @Column(name = "user_type", columnDefinition = "VARCHAR(255)", nullable = false)
     private UserType userType;
 
-
     @Enumerated(EnumType.STRING)
     @Column(name = "register_type")
     private LoginType loginType;
@@ -39,8 +38,5 @@ public class Users {
 
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", updatable = false)
     private Timestamp updatedAt;
-
-    @OneToOne(mappedBy = "users", optional = true)
-    private RecurringBudgets recurringBudgets;
 
 }

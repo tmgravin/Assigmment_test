@@ -1,4 +1,4 @@
-package com.intern.msp.Enum;
+package com.intern.msp.eum;
 
 public enum ExperienceYear {
     LESS_THAN_ONE_MONTH,

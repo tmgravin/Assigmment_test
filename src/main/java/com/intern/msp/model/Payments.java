@@ -1,13 +1,10 @@
 package com.intern.msp.model;
 
-import com.intern.msp.Enum.PaymentMethod;
-import com.intern.msp.Enum.PaymentStatus;
+import com.intern.msp.eum.PaymentMethod;
+import com.intern.msp.eum.PaymentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.web.ProjectedPayload;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -51,7 +48,5 @@ public class Payments {
     @JoinColumn(name = "project_id", referencedColumnName = "id")
     private Projects projects;
 
-    @OneToOne(mappedBy = "payments", optional = true)
-    private RecurringBudgets recurringBudgets;
 
 }
