@@ -1,4 +1,4 @@
-package com.intern.msp.eum;
+package com.intern.msp.enumerated;
 
 public enum Budgets {
     HOURLY_RATE,

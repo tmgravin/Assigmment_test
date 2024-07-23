@@ -1,6 +1,6 @@
 package com.intern.msp.model;
 
-import com.intern.msp.eum.WorkType;
+import com.intern.msp.enumerated.WorkType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,13 +15,13 @@ public class UsersDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "portfolio", nullable = false,columnDefinition = "TEXT")
+    @Column(name = "portfolio", nullable = false, columnDefinition = "TEXT")
     private String portfolioFile;
 
     @Column(name = "cv", nullable = false, columnDefinition = "TEXT")
-    private String cvText;
+    private String cv;
 
-    @Column(name = "cover_letter",columnDefinition = "TEXT")
+    @Column(name = "cover_letter", columnDefinition = "TEXT")
     private String coverLetter;
 
     @Column(name = "upload_photo", nullable = false, columnDefinition = "TEXT")
@@ -34,14 +34,14 @@ public class UsersDetails {
     @Column(name = "work_type", nullable = false)
     private WorkType workType;
 
-    @Column(name = "created_at", updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false, insertable = false)
     private Timestamp createdAt;
 
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",updatable = false)
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false)
     private Timestamp updatedAt;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = true)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private Users users;
 
 }

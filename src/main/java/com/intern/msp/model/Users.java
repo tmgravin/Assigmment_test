@@ -1,7 +1,7 @@
 package com.intern.msp.model;
 
-import com.intern.msp.eum.LoginType;
-import com.intern.msp.eum.UserType;
+import com.intern.msp.enumerated.LoginType;
+import com.intern.msp.enumerated.UserType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,10 +19,10 @@ public class Users {
     @Column(name = "name", nullable = false, columnDefinition = "VARCHAR(50)")
     private String name;
 
-    @Column(name = "email", unique = true, nullable = false,columnDefinition = "VARCHAR(100)")
+    @Column(name = "email", unique = true, nullable = false, columnDefinition = "VARCHAR(100)")
     private String email;
 
-    @Column(name = "password", nullable = false,columnDefinition = "VARCHAR(100)")
+    @Column(name = "password", nullable = false, columnDefinition = "VARCHAR(100)")
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -36,7 +36,6 @@ public class Users {
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false, insertable = false)
     private Timestamp createdAt;
 
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", updatable = false)
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false)
     private Timestamp updatedAt;
-
 }
