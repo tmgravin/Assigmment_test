@@ -1,0 +1,50 @@
+#Name of the project
+spring:
+  application:
+    name: msp
+
+#Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/msp_assignment
+    username: root
+    password: root
+    driver-class-name: org.postgresql.Driver
+
+# Jpa Hibernate Configuration
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate.ddl-auto: update
+    show-sql: true
+
+# oauth security
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          google:
+#            client-id: 418876836021-slmcs9g6puprd15hl1d1a64oc4i4v4cb.apps.googleusercontent.com
+#            client-secret: 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
+#            scope:
+#              - email
+#              - profile
+#          facebook:
+#            client-id: 838780548215216
+#            client-secret: 30b4760f6ae045def12278218532f146
+#            scope:
+#              - email
+#              - public_profile
+  mail:
+    host: smtp.example.com
+    port: 587
+    username: girija4664@gmail.com
+    password: bqnkejvrabtxsvrj
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
+
+

@@ -22,15 +22,13 @@ public class Projects {
     @Column(name = "project_deadline", nullable = false)
     private Timestamp projectDeadline;
 
-    @Column(name = "created_at",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
     private Timestamp createdAt;
 
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false)
     private Timestamp updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "users_id",referencedColumnName = "id")
+    @JoinColumn(name = "users_id", referencedColumnName = "id")
     private Users users;
-
-
 }

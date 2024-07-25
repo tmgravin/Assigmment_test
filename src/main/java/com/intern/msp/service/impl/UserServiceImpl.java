@@ -1,22 +1,41 @@
 package com.intern.msp.service.impl;
 
+import com.intern.msp.enumerated.LoginType;
+import com.intern.msp.enumerated.UserType;
 import com.intern.msp.model.Users;
 import com.intern.msp.repository.UsersRepository;
 import com.intern.msp.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.util.DigestUtils;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UsersService {
+
     @Autowired
     private UsersRepository usersRepository;
 
     @Override
-    public Users createUser(Users user) {
+    public Users signup(Users user) {
+        System.out.println(user.getPassword());
+        user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
+        if(user.getUserType() == null){
+            user.setUserType(UserType.ADMIN);
+        }
+        if(user.getLoginType() == null){
+            user.setLoginType(LoginType.GOOGLE);
+        }
         return usersRepository.save(user);
+    }
+    @Override
+    public Users login(String email, String password){
+        Users user = usersRepository.findByEmail(email);
+        if (user != null && DigestUtils.md5DigestAsHex(password.getBytes()).equals(user.getPassword())) {
+            return user;
+        }
+        return null;
     }
 
     @Override
@@ -32,6 +51,7 @@ public class UserServiceImpl implements UsersService {
 
     @Override
     public List<Users> getAllUsers() {
+
         return usersRepository.findAll();
     }
 
@@ -42,7 +62,9 @@ public class UserServiceImpl implements UsersService {
             Users existingUser = existingUserOptional.get();
             existingUser.setName(user.getName());
             existingUser.setEmail(user.getEmail());
-            existingUser.setPassword(user.getPassword());
+            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                existingUser.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
+            }
             existingUser.setUserType(user.getUserType());
             existingUser.setLoginType(user.getLoginType());
             existingUser.setUpdatedAt(user.getUpdatedAt());
