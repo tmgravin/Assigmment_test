@@ -1,4 +1,4 @@
-package com.intern.msp.Utils;
+package com.intern.msp.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
