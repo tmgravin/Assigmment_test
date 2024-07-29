@@ -8,10 +8,10 @@
 		<version>3.3.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.intern</groupId>
+	<groupId>com.msp</groupId>
 	<artifactId>MSP</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>msp</name>
+	<name>assignment</name>
 	<description>MSP Assignment Project</description>
 	<properties>
 		<java.version>19</java.version>
@@ -47,11 +47,6 @@
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-oauth2-client</artifactId>-->
-<!--		</dependency>-->
-		<!--For Email Verification-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
