@@ -13,7 +13,7 @@ public class Likes {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "likes", columnDefinition = "CHAR(1)")
+    @Column(name = "likes", columnDefinition = "CHAR(1)") // L for like, D for dislike
     private char likes;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
@@ -24,7 +24,7 @@ public class Likes {
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "reviews_id", referencedColumnName = "id")
-    private Reviews reviews;
+    private Review reviews;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "users_id", referencedColumnName = "id")
