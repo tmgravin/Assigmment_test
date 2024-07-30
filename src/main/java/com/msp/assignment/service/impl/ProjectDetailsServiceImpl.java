@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectDetailsServiceImpl implements ProjectDetailsService {
@@ -16,12 +17,22 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
     private ProjectDetailsRepo projectDetailsRepo;
 
     @Override
-    public Optional<ProjectsDetails> get(Long id) {
-        return projectDetailsRepo.findById(id);
+    public Optional<ProjectsDetails> get(Long id)
+    {
+    	Optional<ProjectsDetails> projectsDetails = projectDetailsRepo.findById(id);
+    	projectsDetails.get().getProjects().setUsers(null);
+        return projectsDetails;
     }
 
     @Override
-    public List<ProjectsDetails> getAll() {
-        return projectDetailsRepo.findAll();
+    public List<ProjectsDetails> getAll()
+    {
+    	List<ProjectsDetails> allProjectDetails = projectDetailsRepo.findAll();
+    	allProjectDetails.stream().map(ProjectsDetails ->
+    	{
+          ProjectsDetails.getProjects().setUsers(null);
+          return ProjectsDetails;
+    	}).collect(Collectors.toList());
+        return allProjectDetails;
     }
 }
