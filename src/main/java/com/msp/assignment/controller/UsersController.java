@@ -1,5 +1,6 @@
 package com.msp.assignment.controller;
 
+import com.msp.assignment.dto.UsersDto;
 import com.msp.assignment.exception.EmailRelatedException;
 import com.msp.assignment.exception.ResourceNotFoundException;
 import com.msp.assignment.model.Users;
@@ -12,9 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -42,7 +40,7 @@ public class UsersController {
 
     //Api for user signup and sending email verification email
     @PostMapping("/")
-    public ResponseEntity<String> signupUser(@RequestBody Users user, HttpSession session) {
+    public ResponseEntity<String> signupUser(@RequestBody UsersDto user, HttpSession session) {
         log.info("Inside signupUser method of UserController.");
         try {
             String registerUser = userService.signupUser(user);
@@ -51,7 +49,7 @@ public class UsersController {
             session.setAttribute("userEmail", user.getEmail());
             session.setAttribute("emailStoredTime", System.currentTimeMillis());
 
-            return ResponseEntity.ok().body("User signup successfully. Please verify your email for login.");
+            return ResponseEntity.ok().body(registerUser);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
@@ -62,12 +60,11 @@ public class UsersController {
 
     //Api for user login
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestParam String email, @RequestParam String password) {
+    public ResponseEntity<?> loginUser(@RequestParam String email, @RequestParam String password) {
         log.info("Inside loginUser method of UserController.");
         try {
             Users user = userService.loginUser(email, password);
-            log.info("User login successfully.");
-            return ResponseEntity.status(HttpStatus.OK).body("User login successfully.");
+            return ResponseEntity.status(HttpStatus.OK).body(user);
         } catch (ResourceNotFoundException e) {
             log.error("Resource not found: ", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());

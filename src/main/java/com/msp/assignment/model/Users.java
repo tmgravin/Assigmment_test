@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name ="users")
@@ -29,11 +31,11 @@ public class Users {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_type", columnDefinition = "VARCHAR(255)", nullable = false)
+    @Column(name = "user_type", columnDefinition = "VARCHAR(255)")
     private UserType userType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "register_type", columnDefinition = "VARCHAR(255)", nullable = false)
+    @Column(name = "register_type", columnDefinition = "VARCHAR(255)")
     private LoginType loginType;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false, insertable = false)

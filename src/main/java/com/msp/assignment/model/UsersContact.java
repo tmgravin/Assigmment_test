@@ -14,7 +14,7 @@ public class UsersContact {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "phone", nullable = false, length = 15)
+    @Column(name = "phone", length = 15)
     private String phone;
 
     @Column(name = "address", columnDefinition = "TEXT")
@@ -23,7 +23,7 @@ public class UsersContact {
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false)
     private Timestamp updatedAt;
 
-    @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @JoinColumn(name = "users_id", referencedColumnName = "id", nullable = false)
     private Users users;
 }
