@@ -20,9 +20,6 @@ public class UsersContact {
     @Column(name = "address", columnDefinition = "TEXT")
     private String address;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
-    private Timestamp createdAt;
-
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false)
     private Timestamp updatedAt;
 

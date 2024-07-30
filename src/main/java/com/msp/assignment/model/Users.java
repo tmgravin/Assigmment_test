@@ -22,6 +22,9 @@ public class Users {
     @Column(name = "email", unique = true, nullable = false, columnDefinition = "VARCHAR(100)")
     private String email;
 
+    @Column(name = "is_emailVerified", nullable = false, columnDefinition = "CHAR(1) default 'N'")
+    private char isEmailVerified;
+
     @Column(name = "password", nullable = false, columnDefinition = "VARCHAR(100)")
     private String password;
 
