@@ -1,4 +1,6 @@
 package com.msp.assignment.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.msp.assignment.enumerated.ExperienceYear;
 import com.msp.assignment.enumerated.LevelOfExperience;
 import com.msp.assignment.enumerated.ProjectStatus;
@@ -11,6 +13,7 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "projects_details")
 @Data
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ProjectsDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,4 +47,5 @@ public class ProjectsDetails {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "projects_id", referencedColumnName = "id")
     private Projects projects;
+
 }
