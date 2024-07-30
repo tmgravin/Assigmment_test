@@ -20,15 +20,15 @@ public class ProjectsDetails {
     @Column(name = "project_status", nullable = false)
     private ProjectStatus projectStatus;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(name = "scope", nullable = false)
     private Scope scope;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(name = "experience_year", nullable = false)
     private ExperienceYear experienceYear;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(name = "level_of_experience", nullable = false)
     private LevelOfExperience levelOfExperience;
 
