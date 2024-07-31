@@ -3,15 +3,14 @@ package com.msp.assignment.controller;
 
 import com.msp.assignment.enumerated.ExperienceYear;
 import com.msp.assignment.enumerated.LevelOfExperience;
-import com.msp.assignment.enumerated.ProjectStatus;
 import com.msp.assignment.enumerated.Scope;
+import com.msp.assignment.model.ProjectApplication;
 import com.msp.assignment.model.Projects;
 import com.msp.assignment.model.ProjectsDetails;
 import com.msp.assignment.model.Users;
 import com.msp.assignment.service.ProjectDetailsService;
 import com.msp.assignment.service.ProjectService;
 import com.msp.assignment.utils.FileUtils;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -51,10 +49,10 @@ public class ProjectController {
     public ResponseEntity<?> getProjectDetails(@RequestParam(name = "id", required = false) Long id) {
         try {
             if (id != null) {
-              return ResponseEntity.ok(projectDetailsService.get(id));
+                return ResponseEntity.ok(projectDetailsService.get(id));
 
             } else {
-                List<ProjectsDetails> allProjectDetails = projectDetailsService.getAll().stream().map(ProjectsDetails ->{
+                List<ProjectsDetails> allProjectDetails = projectDetailsService.getAll().stream().map(ProjectsDetails -> {
 //                    ProjectsDetails.setProjects(null);
                     ProjectsDetails.getProjects().getUsers();
                     return ProjectsDetails;
@@ -70,21 +68,21 @@ public class ProjectController {
 
 
     @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Projects> addProjectWithDetails(@RequestParam("projectStatus") String projectStatus,
-                                                          @RequestParam("scope") String scope,
-                                                          @RequestParam("experienceYear") String experienceYear,
-                                                          @RequestParam("levelOfExperience") String levelOfExperience,
-                                                          @RequestParam("projectUrl") MultipartFile projectUrl,
-                                                          @RequestParam("projectName") String projectName,
-                                                          @RequestParam("projectAmount") String projectAmount,
-                                                          @RequestParam("projectDeadline") Timestamp projectDeadline,
-                                                          @RequestParam("users") Users users) {
+    public ResponseEntity<Projects> addProjectWithDetails(
+            @RequestParam("scope") String scope,
+            @RequestParam("experienceYear") String experienceYear,
+            @RequestParam("levelOfExperience") String levelOfExperience,
+            @RequestParam("projectUrl") MultipartFile projectUrl,
+            @RequestParam("projectName") String projectName,
+            @RequestParam("projectAmount") String projectAmount,
+            @RequestParam("projectDeadline") Timestamp projectDeadline,
+            @RequestParam("users") Users users) {
         log.info("Inside addProjectWithDetails method of ProjectController");
         try {
 
             // Create and set project details
             ProjectsDetails projectsDetails = new ProjectsDetails();
-            projectsDetails.setProjectStatus(ProjectStatus.valueOf(projectStatus.trim())); // Trim the input to remove any extra spaces
+//            projectsDetails.setProjectStatus(ProjectStatus.valueOf(projectStatus.trim())); // Trim the input to remove any extra spaces
             projectsDetails.setScope(Scope.valueOf(scope.trim())); // Trim the input to remove any extra spaces
             projectsDetails.setExperienceYear(ExperienceYear.valueOf(experienceYear.trim())); // Trim the input to remove any extra spaces
             projectsDetails.setLevelOfExperience(LevelOfExperience.valueOf(levelOfExperience.trim())); // Trim the input to remove any extra spaces
@@ -107,6 +105,29 @@ public class ProjectController {
         } catch (Exception e) {
             log.error("Error handling file or saving project", e);
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // Method to apply for a project
+    @PostMapping("/apply")
+    public ResponseEntity<ProjectApplication> applyForProject(@RequestParam("projectId") Long projectId,
+                                                              @RequestParam("doerId") Long doerId) {
+        try {
+            ProjectApplication application = projectService.applyForProject(projectId, doerId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(application);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // Method to accept a project application
+    @PostMapping("/acceptApplication")
+    public ResponseEntity<ProjectApplication> acceptApplication(@RequestParam("applicationId") Long applicationId) {
+        try {
+            ProjectApplication application = projectService.acceptProjectApplication(applicationId);
+            return ResponseEntity.ok(application);
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }

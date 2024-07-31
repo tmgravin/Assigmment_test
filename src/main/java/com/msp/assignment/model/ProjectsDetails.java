@@ -21,7 +21,7 @@ public class ProjectsDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "project_status", nullable = false)
-    private ProjectStatus projectStatus;
+    private ProjectStatus projectStatus= ProjectStatus.PENDING;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "scope", nullable = false)

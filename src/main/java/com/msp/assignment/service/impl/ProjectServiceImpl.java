@@ -1,9 +1,15 @@
 package com.msp.assignment.service.impl;
 
+import com.msp.assignment.enumerated.ApplicationStatus;
+import com.msp.assignment.enumerated.ProjectStatus;
+import com.msp.assignment.model.ProjectApplication;
 import com.msp.assignment.model.Projects;
 import com.msp.assignment.model.ProjectsDetails;
+import com.msp.assignment.model.Users;
+import com.msp.assignment.repository.ProjectApplicationRepo;
 import com.msp.assignment.repository.ProjectDetailsRepo;
 import com.msp.assignment.repository.ProjectRepo;
+import com.msp.assignment.repository.UsersRepository;
 import com.msp.assignment.service.ProjectService;
 import com.msp.assignment.utils.FileUtils;
 import org.slf4j.Logger;
@@ -29,7 +35,11 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private ProjectDetailsRepo projectDetailsRepo;
 
+    @Autowired
+    private UsersRepository usersRepository;
 
+    @Autowired
+    private ProjectApplicationRepo projectApplicationRepo;
 
 
     @Override
@@ -50,12 +60,16 @@ public class ProjectServiceImpl implements ProjectService {
                 log.info("File uploaded and saved to path: {}", filePath);
             }
 
+// Set default project status to PENDING
+            details.setProjectStatus(ProjectStatus.PENDING);
+
             // Set the project reference in projectDetails
             details.setProjects(savedProject);
 
             // Save project details
             projectDetailsRepo.save(details);
             log.info("Project details saved for project ID: {}", savedProject.getId());
+
 
             return savedProject;
 
@@ -71,5 +85,31 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<ProjectsDetails> getProjectDetailsByUserId(Long userId) {
         return projectDetailsRepo.findProjectsDetailsByUserId(userId);
+    }
+
+    @Override
+    public ProjectApplication applyForProject(Long projectId, Long doerId) {
+        Projects project = projectRepo.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+        Users doer = usersRepository.findById(doerId).orElseThrow(() -> new RuntimeException("User not found"));
+
+        ProjectApplication application = new ProjectApplication();
+        application.setProjects(project);
+        application.setDoer(doer);
+        application.setStatus(ApplicationStatus.PENDING);
+
+        return projectApplicationRepo.save(application);
+    }
+
+    @Override
+    public ProjectApplication acceptProjectApplication(Long applicationId) {
+        ProjectApplication application = projectApplicationRepo.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
+
+        ProjectsDetails projectsDetails = (ProjectsDetails) projectDetailsRepo.findByProjectsId(application.getProjects().getId()).orElseThrow(() -> new RuntimeException("Project details not found"));
+
+        projectsDetails.setProjectStatus(ProjectStatus.ON_GOING);
+        projectDetailsRepo.save(projectsDetails);
+
+        application.setStatus(ApplicationStatus.ACCEPTED);
+        return projectApplicationRepo.save(application);
     }
 }

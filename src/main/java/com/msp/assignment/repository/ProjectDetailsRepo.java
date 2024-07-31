@@ -21,4 +21,7 @@ public interface ProjectDetailsRepo extends JpaRepository<ProjectsDetails, Long>
 
     @Query("SELECT pd FROM ProjectsDetails pd JOIN FETCH pd.projects p JOIN FETCH p.users WHERE p.users.id = :userId")
     List<ProjectsDetails> findProjectsDetailsByUserId(@Param("userId") Long userId);
+
+    Optional<ProjectsDetails> findByProjectsId(Long projectsId);
+
 }
