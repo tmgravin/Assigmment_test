@@ -2,6 +2,7 @@ package com.msp.assignment.controller;
 
 import com.msp.assignment.exception.EmailRelatedException;
 import com.msp.assignment.exception.ResourceNotFoundException;
+import com.msp.assignment.model.ForgetPassword;
 import com.msp.assignment.model.Users;
 import com.msp.assignment.service.UsersService;
 import jakarta.servlet.http.HttpSession;
@@ -13,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Optional;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/api/users")
@@ -23,13 +26,13 @@ public class UsersController {
     @Autowired
     private UsersService userService;
 
-    //Api for get users by id and get all users
+    //Api for get users by id
     @GetMapping("/")
-    public ResponseEntity<?> getUsers(@RequestParam(name = "id", required = false) Long id) {
+    public ResponseEntity<?> getUsers(@RequestParam(name = "id") Long id) {
         log.info("Inside getUsers method of UserController.");
         try {
-            Object users = userService.getAllUsers(id);
-            return ResponseEntity.ok(users);
+            Optional<Users> user = userService.getUser(id);
+            return ResponseEntity.ok(user);
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
@@ -42,16 +45,15 @@ public class UsersController {
     public ResponseEntity<String> signupUser(@RequestBody Users user, HttpSession session) {
         log.info("Inside signupUser method of UserController.");
         try {
-            String registerUser = userService.signupUser(user);
+            userService.signupUser(user);
             //Store the email and current timestamp in the session
             session.setAttribute("userEmail", user.getEmail());
             session.setAttribute("emailStoredTime", System.currentTimeMillis());
 
-            return ResponseEntity.ok().body(registerUser);
+            return ResponseEntity.status(HttpStatus.OK).body("User signup successfully. Please verify your email for login.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            log.error("Exception: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
@@ -61,8 +63,8 @@ public class UsersController {
     public ResponseEntity<?> loginUser(@RequestBody Users users) {
         log.info("Inside loginUser method of UserController.");
         try {
-            Users user = userService.loginUser(users.getEmail(), users.getPassword());
-            return ResponseEntity.status(HttpStatus.OK).body(user);
+            users = userService.loginUser(users.getEmail(), users.getPassword());
+            return ResponseEntity.status(HttpStatus.OK).body(users);
         } catch (ResourceNotFoundException e) {
             log.error("Resource not found: ", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
@@ -153,12 +155,12 @@ public class UsersController {
 
     //Api for forget password and sending reset code
     @PostMapping("/forgetPassword")
-    public ResponseEntity<String> forgetPassword(@RequestParam String email, HttpSession session) {
+    public ResponseEntity<String> forgetPassword(@RequestBody Users users, HttpSession session) {
         log.info("Inside forgetPassword method of UserController (authentication)");
         try {
-            userService.forgetPassword(email);
+            userService.forgetPassword(users.getEmail());
 
-            session.setAttribute("userEmail", email);
+            session.setAttribute("userEmail", users.getEmail());
             session.setAttribute("emailStoredTime", System.currentTimeMillis());
 
             return ResponseEntity.status(HttpStatus.OK).body("Password verification code is send to your email.");
@@ -173,7 +175,7 @@ public class UsersController {
 
     //Api for requesting password reset code again
     @PostMapping("/requestCode")
-    public ResponseEntity<String> resendPasswordResetCode(@RequestParam(required = false) String email, HttpSession session) {
+    public ResponseEntity<String> resendPasswordResetCode(@RequestBody(required = false) String email, HttpSession session) {
         log.info("Inside resendPasswordResetCode method of UserController (authentication");
         try {
             String sessionEmail = (String) session.getAttribute("userEmail");
@@ -198,10 +200,10 @@ public class UsersController {
 
     //Api for verifying password reset code
     @PostMapping("/verifyResetCode")
-    public ResponseEntity<String> verifyPasswordResetCode(@RequestParam int verificationCode) {
+    public ResponseEntity<String> verifyPasswordResetCode(@RequestBody ForgetPassword forgetPassword) {
         log.info("Inside verifyPasswordResetCode method of UserController (authentication)");
         try {
-            userService.verifyPasswordResetCode(verificationCode);
+            userService.verifyPasswordResetCode(forgetPassword.getCode());
             return ResponseEntity.status(HttpStatus.OK).body("Password Reset code verified successfully.");
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -215,10 +217,10 @@ public class UsersController {
 
     //Api for resetting password
     @PostMapping("/resetPassword")
-    public ResponseEntity<String> resetPassword(@RequestParam String newPassword, @RequestParam String confirmPassword) {
+    public ResponseEntity<String> resetPassword(@RequestBody Users user) {
         log.info("Inside resetPassword method of UserController (authentication)");
         try {
-            userService.resetPassword(newPassword, confirmPassword);
+            userService.resetPassword(user.getPassword());
             return ResponseEntity.status(HttpStatus.OK).body("Password reset successfully.");
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

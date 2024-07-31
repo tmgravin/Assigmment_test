@@ -4,10 +4,12 @@ import com.msp.assignment.model.UsersVerification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface UsersVerificationRepo extends JpaRepository<UsersVerification, Long> {
     Optional<UsersVerification> findByToken(String token);
 

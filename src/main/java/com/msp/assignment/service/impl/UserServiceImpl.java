@@ -137,18 +137,13 @@ public class UserServiceImpl implements UsersService {
 
     @Override
     @Transactional
-    public Object getAllUsers(Long id) {
+    public Optional<Users> getUser(Long id) {
         try {
-            if (id != null) {
-                Optional<Users> usersOptional = userRepository.findById(id);
-                return usersOptional.orElseThrow(()-> new ResourceNotFoundException("User not found for this id: " + id));
-            } else {
-                List<Users> users = userRepository.findAll();
-                if(users.isEmpty()){
-                    throw new ResourceNotFoundException("User list is empty.");
-                }
-                return users;
+            Optional<Users> user = userRepository.findById(id);
+            if (user.isEmpty()) {
+                throw new ResourceNotFoundException("User not found wit id: " + id);
             }
+            return user;
         } catch (ResourceNotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -250,11 +245,8 @@ public class UserServiceImpl implements UsersService {
 
     @Override
     @Transactional
-    public void resetPassword(String newPassword, String confirmPassword) {
+    public void resetPassword(String newPassword) {
         try {
-            if (!newPassword.equals(confirmPassword)) {
-                throw new IllegalArgumentException("Password mismatch. New password and confirm password must be same.");
-            }
             ForgetPassword forgetPassword = forgetPasswordRepo.findByIsVerified("Y").orElseThrow(() -> new ResourceNotFoundException("Password reset code is not verified."));
             Users users = userRepository.findById(forgetPassword.getUsers().getId()).orElseThrow(() -> new ResourceNotFoundException("User doesn't exist with this Id."));
             users.setPassword(DigestUtils.md5DigestAsHex(newPassword.getBytes()));
