@@ -1,6 +1,7 @@
 package com.msp.assignment.repository;
 
 import com.msp.assignment.model.ForgetPassword;
+import com.msp.assignment.model.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,5 +19,5 @@ public interface ForgetPasswordRepo extends JpaRepository<ForgetPassword, Long> 
     @Query("SELECT fp FROM ForgetPassword fp WHERE fp.users.id = :userId ORDER BY fp.createdAt DESC")
     List<ForgetPassword> findAllCodesByUser(@Param("userId")Long userId);
 
-    void deleteById(Long id);
+    void deleteByUserId(Long userId);
 }

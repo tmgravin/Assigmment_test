@@ -20,7 +20,6 @@ import java.util.Optional;
 @CrossOrigin
 @RequestMapping("/api/users")
 public class UsersController {
-    private static final long EMAIL_EXPIRATION_TIME = 3600000;
     private static final Logger log = LoggerFactory.getLogger(UsersController.class);
 
     @Autowired
@@ -46,10 +45,6 @@ public class UsersController {
         log.info("Inside signupUser method of UserController.");
         try {
             userService.signupUser(user);
-            //Store the email and current timestamp in the session
-            session.setAttribute("userEmail", user.getEmail());
-            session.setAttribute("emailStoredTime", System.currentTimeMillis());
-
             return ResponseEntity.status(HttpStatus.OK).body("User signup successfully. Please verify your email for login.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -76,18 +71,10 @@ public class UsersController {
 
     //Api for requesting email verification again
     @PostMapping("/requestEmailToken")
-    public ResponseEntity<String> resendVerificationEmail(@RequestParam(required = false) String email, HttpSession session) {
+    public ResponseEntity<String> resendVerificationEmail(@RequestBody Users user) {
         log.info("Inside resendVerificationEmail method of UserController.");
         try {
-            String sessionEmail = (String) session.getAttribute("userEmail");
-            Long emailStoredTime = (Long) session.getAttribute("emailStoredTime");
-            long currentTime = System.currentTimeMillis();
-            if (sessionEmail != null && emailStoredTime != null && (currentTime - emailStoredTime) <= EMAIL_EXPIRATION_TIME) {
-                email = sessionEmail;
-            } else if (email == null || email.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Session expired. Please provide your email again.");
-            }
-            userService.sendVerificationEmail(email);
+            userService.sendVerificationEmail(user.getEmail());
             return ResponseEntity.status(HttpStatus.OK).body("Email verification token is send again successfully.");
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -155,40 +142,11 @@ public class UsersController {
 
     //Api for forget password and sending reset code
     @PostMapping("/forgetPassword")
-    public ResponseEntity<String> forgetPassword(@RequestBody Users users, HttpSession session) {
+    public ResponseEntity<String> forgetPassword(@RequestBody Users users) {
         log.info("Inside forgetPassword method of UserController (authentication)");
         try {
             userService.forgetPassword(users.getEmail());
-
-            session.setAttribute("userEmail", users.getEmail());
-            session.setAttribute("emailStoredTime", System.currentTimeMillis());
-
             return ResponseEntity.status(HttpStatus.OK).body("Password verification code is send to your email.");
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (EmailRelatedException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
-
-    //Api for requesting password reset code again
-    @PostMapping("/requestCode")
-    public ResponseEntity<String> resendPasswordResetCode(@RequestBody(required = false) String email, HttpSession session) {
-        log.info("Inside resendPasswordResetCode method of UserController (authentication");
-        try {
-            String sessionEmail = (String) session.getAttribute("userEmail");
-            Long emailStoredTime = (Long) session.getAttribute("emailStoredTime");
-            long currentTime = System.currentTimeMillis();
-
-            if (sessionEmail != null && emailStoredTime != null && (currentTime - emailStoredTime) <= EMAIL_EXPIRATION_TIME) {
-                email = sessionEmail;
-            } else if (email == null || email.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Session expired. Please provide your email again.");
-            }
-            userService.forgetPassword(email);
-            return ResponseEntity.status(HttpStatus.OK).body("Password verification code is sent again to your email.");
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (EmailRelatedException e) {

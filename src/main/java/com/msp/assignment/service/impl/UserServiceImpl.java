@@ -252,7 +252,7 @@ public class UserServiceImpl implements UsersService {
             users.setPassword(DigestUtils.md5DigestAsHex(newPassword.getBytes()));
             userRepository.save(users);
 
-            forgetPasswordRepo.deleteById(forgetPassword.getUsers().getId());
+            forgetPasswordRepo.deleteByUserId(forgetPassword.getUsers().getId());
         } catch (IllegalArgumentException | ResourceNotFoundException e) {
             throw e;
         } catch (Exception e) {
