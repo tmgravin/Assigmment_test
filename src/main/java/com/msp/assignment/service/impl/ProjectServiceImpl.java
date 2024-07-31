@@ -41,14 +41,6 @@ public class ProjectServiceImpl implements ProjectService {
             Projects savedProject = projectRepo.save(project);
             log.info("Project saved with ID: {}", savedProject.getId());
 
-
-
-            // Set the project reference in projectDetails
-            details.setProjects(savedProject);
-
-            // Save project details
-            projectDetailsRepo.save(details);
-
             // Handle file upload
             if (file != null && !file.isEmpty()) {
                 // Generate a unique file name and save the file
@@ -57,6 +49,12 @@ public class ProjectServiceImpl implements ProjectService {
                 details.setProjectUrl(filePath);  // Save the file path or URL to the database
                 log.info("File uploaded and saved to path: {}", filePath);
             }
+
+            // Set the project reference in projectDetails
+            details.setProjects(savedProject);
+
+            // Save project details
+            projectDetailsRepo.save(details);
             log.info("Project details saved for project ID: {}", savedProject.getId());
 
             return savedProject;
@@ -68,5 +66,10 @@ public class ProjectServiceImpl implements ProjectService {
             log.error("Error saving project or project details", e);
             throw new RuntimeException("Error saving project or project details", e);
         }
+    }
+
+    @Override
+    public List<ProjectsDetails> getProjectDetailsByUserId(Long userId) {
+        return projectDetailsRepo.findProjectsDetailsByUserId(userId);
     }
 }

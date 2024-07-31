@@ -41,6 +41,12 @@ public class ProjectController {
 
     private static final Logger log = LoggerFactory.getLogger(ProjectController.class);
 
+    @GetMapping("/byUser")
+    public ResponseEntity<List<ProjectsDetails>> getProjectDetailsByUserId(@RequestParam(name = "userId", required = true) Long userId) {
+        List<ProjectsDetails> projectDetails = projectService.getProjectDetailsByUserId(userId);
+        return ResponseEntity.ok(projectDetails);
+    }
+
     @GetMapping("/")
     public ResponseEntity<?> getProjectDetails(@RequestParam(name = "id", required = false) Long id) {
         try {
