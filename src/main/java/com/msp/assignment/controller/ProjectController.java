@@ -8,6 +8,7 @@ import com.msp.assignment.model.Projects;
 import com.msp.assignment.model.ProjectsDetails;
 import com.msp.assignment.model.Users;
 import com.msp.assignment.repository.ProjectDetailsRepo;
+import com.msp.assignment.service.ProjectDetailsService;
 import com.msp.assignment.service.ProjectService;
 import com.msp.assignment.utils.FileUtils;
 import org.apache.catalina.User;
@@ -25,6 +26,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/project")
@@ -35,6 +39,9 @@ public class ProjectController {
     @Autowired
     private FileUtils fileUtils;
 
+    @Autowired
+    private ProjectDetailsService projectDetailsService;
+
     private static final Logger log = LoggerFactory.getLogger(ProjectController.class);
     @Autowired
     private ProjectDetailsRepo projectDetailsRepo;
@@ -43,11 +50,23 @@ public class ProjectController {
     public ResponseEntity<?> getProjects(@RequestParam(name = "id", required = false) Long id) {
         log.info("Inside getProject method of Projectcontroller");
         try {
-            return ResponseEntity.ok(projectService.get(id));
+            if (id != null) {
+                Optional<ProjectsDetails> projectDetails = projectDetailsService.get(id);
+                return ResponseEntity.ok(projectDetails);
+            } else {
+                List<ProjectsDetails> allProjectDetails = projectDetailsService.getAll().stream().map(projectDetails -> {
+                    Projects projects = projectDetails.getProjects();
+//                    projects.getUsers(); // Ensure lazy-loaded fields are initialized
+                    return projectDetails;
+                }).collect(Collectors.toList());
+
+                return ResponseEntity.ok(allProjectDetails);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getLocalizedMessage());
         }
+
     }
 
     @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -4,10 +4,12 @@ import com.msp.assignment.model.ProjectsDetails;
 import com.msp.assignment.repository.ProjectDetailsRepo;
 import com.msp.assignment.service.ProjectDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class PrjectDetailsServiceImpl implements ProjectDetailsService {
 
     @Autowired
