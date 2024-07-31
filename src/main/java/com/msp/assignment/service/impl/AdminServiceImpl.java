@@ -53,4 +53,13 @@ public class AdminServiceImpl implements AdminService {
             throw new RuntimeException("Internal server error: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public Integer countUsersByUserType(UserType userType) {
+        try {
+            return usersRepository.countUsersByUserType(userType);
+        } catch (Exception e) {
+            throw new RuntimeException("Internal server error: " + e.getMessage(), e);
+        }
+    }
 }

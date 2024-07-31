@@ -9,4 +9,8 @@ public interface AdminService {
     Object getAllUsers(Long id);
 
     List<Users> getUsersByRole(UserType userType);
+
+
+    Integer countUsersByUserType(UserType userType);
+
 }
