@@ -1,5 +1,7 @@
 package com.msp.assignment.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.msp.assignment.model.Users;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -8,6 +10,7 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "projects")
 @Data
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Projects {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

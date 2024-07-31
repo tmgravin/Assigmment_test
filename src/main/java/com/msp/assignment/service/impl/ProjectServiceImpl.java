@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,10 +29,8 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private ProjectDetailsRepo projectDetailsRepo;
 
-    @Override
-    public Optional<Projects> get(Long id) {
-        return projectRepo.findById(id);
-    }
+
+
 
     @Override
     public Projects addProject(Projects project, ProjectsDetails details, MultipartFile file) {
@@ -42,6 +41,14 @@ public class ProjectServiceImpl implements ProjectService {
             Projects savedProject = projectRepo.save(project);
             log.info("Project saved with ID: {}", savedProject.getId());
 
+
+
+            // Set the project reference in projectDetails
+            details.setProjects(savedProject);
+
+            // Save project details
+            projectDetailsRepo.save(details);
+
             // Handle file upload
             if (file != null && !file.isEmpty()) {
                 // Generate a unique file name and save the file
@@ -50,12 +57,6 @@ public class ProjectServiceImpl implements ProjectService {
                 details.setProjectUrl(filePath);  // Save the file path or URL to the database
                 log.info("File uploaded and saved to path: {}", filePath);
             }
-
-            // Set the project reference in projectDetails
-            details.setProjects(savedProject);
-
-            // Save project details
-            projectDetailsRepo.save(details);
             log.info("Project details saved for project ID: {}", savedProject.getId());
 
             return savedProject;

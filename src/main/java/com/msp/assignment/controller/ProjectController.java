@@ -1,5 +1,6 @@
 package com.msp.assignment.controller;
 
+
 import com.msp.assignment.enumerated.ExperienceYear;
 import com.msp.assignment.enumerated.LevelOfExperience;
 import com.msp.assignment.enumerated.ProjectStatus;
@@ -7,11 +8,10 @@ import com.msp.assignment.enumerated.Scope;
 import com.msp.assignment.model.Projects;
 import com.msp.assignment.model.ProjectsDetails;
 import com.msp.assignment.model.Users;
-import com.msp.assignment.repository.ProjectDetailsRepo;
 import com.msp.assignment.service.ProjectDetailsService;
 import com.msp.assignment.service.ProjectService;
 import com.msp.assignment.utils.FileUtils;
-import org.apache.catalina.User;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,22 +38,20 @@ public class ProjectController {
     @Autowired
     private ProjectDetailsService projectDetailsService;
 
+
     private static final Logger log = LoggerFactory.getLogger(ProjectController.class);
-    @Autowired
-    private ProjectDetailsRepo projectDetailsRepo;
 
     @GetMapping("/")
-    public ResponseEntity<?> getProjects(@RequestParam(name = "id", required = false) Long id) {
-        log.info("Inside getProject method of Projectcontroller");
+    public ResponseEntity<?> getProjectDetails(@RequestParam(name = "id", required = false) Long id) {
         try {
             if (id != null) {
-                Optional<ProjectsDetails> projectDetails = projectDetailsService.get(id);
-                return ResponseEntity.ok(projectDetails);
+              return ResponseEntity.ok(projectDetailsService.get(id));
+
             } else {
-                List<ProjectsDetails> allProjectDetails = projectDetailsService.getAll().stream().map(projectDetails -> {
-                    Projects projects = projectDetails.getProjects();
-//                    projects.getUsers(); // Ensure lazy-loaded fields are initialized
-                    return projectDetails;
+                List<ProjectsDetails> allProjectDetails = projectDetailsService.getAll().stream().map(ProjectsDetails ->{
+//                    ProjectsDetails.setProjects(null);
+                    ProjectsDetails.getProjects().getUsers();
+                    return ProjectsDetails;
                 }).collect(Collectors.toList());
 
                 return ResponseEntity.ok(allProjectDetails);
@@ -66,8 +60,8 @@ public class ProjectController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getLocalizedMessage());
         }
-
     }
+
 
     @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Projects> addProjectWithDetails(@RequestParam("projectStatus") String projectStatus,
