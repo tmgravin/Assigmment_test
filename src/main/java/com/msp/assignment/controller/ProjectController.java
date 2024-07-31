@@ -42,17 +42,19 @@ public class ProjectController {
     private static final Logger log = LoggerFactory.getLogger(ProjectController.class);
 
     @GetMapping("/")
-    public ResponseEntity<?> getProjectDetails(@RequestParam(name = "id", required = false) Long id)
-    {
-    	log.info("Inside getProjectDetails method of ProjectController");
+    public ResponseEntity<?> getProjectDetails(@RequestParam(name = "id", required = false) Long id) {
         try {
-            if (id != null)
-            {
+            if (id != null) {
               return ResponseEntity.ok(projectDetailsService.get(id));
-            }
-            else
-            {
-                return ResponseEntity.ok(projectDetailsService.getAll());
+
+            } else {
+                List<ProjectsDetails> allProjectDetails = projectDetailsService.getAll().stream().map(ProjectsDetails ->{
+//                    ProjectsDetails.setProjects(null);
+                    ProjectsDetails.getProjects().getUsers();
+                    return ProjectsDetails;
+                }).collect(Collectors.toList());
+
+                return ResponseEntity.ok(allProjectDetails);
             }
         } catch (Exception e) {
             e.printStackTrace();
