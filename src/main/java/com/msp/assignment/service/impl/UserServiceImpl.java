@@ -248,11 +248,12 @@ public class UserServiceImpl implements UsersService {
     public void resetPassword(String newPassword) {
         try {
             ForgetPassword forgetPassword = forgetPasswordRepo.findByIsVerified("Y").orElseThrow(() -> new ResourceNotFoundException("Password reset code is not verified."));
+
             Users users = userRepository.findById(forgetPassword.getUsers().getId()).orElseThrow(() -> new ResourceNotFoundException("User doesn't exist with this Id."));
             users.setPassword(DigestUtils.md5DigestAsHex(newPassword.getBytes()));
             userRepository.save(users);
 
-            forgetPasswordRepo.deleteByUserId(forgetPassword.getUsers().getId());
+            forgetPasswordRepo.deleteByUsersId(forgetPassword.getUsers().getId());
         } catch (IllegalArgumentException | ResourceNotFoundException e) {
             throw e;
         } catch (Exception e) {

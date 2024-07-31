@@ -19,5 +19,5 @@ public interface ForgetPasswordRepo extends JpaRepository<ForgetPassword, Long> 
     @Query("SELECT fp FROM ForgetPassword fp WHERE fp.users.id = :userId ORDER BY fp.createdAt DESC")
     List<ForgetPassword> findAllCodesByUser(@Param("userId")Long userId);
 
-    void deleteByUserId(Long userId);
+    void deleteByUsersId(Long userId);
 }
