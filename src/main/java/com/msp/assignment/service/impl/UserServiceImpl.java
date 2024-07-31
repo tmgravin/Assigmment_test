@@ -1,16 +1,13 @@
 package com.msp.assignment.service.impl;
 
-import com.msp.assignment.dto.UsersDto;
 import com.msp.assignment.enumerated.LoginType;
 import com.msp.assignment.enumerated.UserType;
 import com.msp.assignment.exception.EmailRelatedException;
 import com.msp.assignment.exception.ResourceNotFoundException;
 import com.msp.assignment.model.ForgetPassword;
 import com.msp.assignment.model.Users;
-import com.msp.assignment.model.UsersContact;
 import com.msp.assignment.model.UsersVerification;
 import com.msp.assignment.repository.ForgetPasswordRepo;
-import com.msp.assignment.repository.UsersContactRepo;
 import com.msp.assignment.repository.UsersRepository;
 import com.msp.assignment.repository.UsersVerificationRepo;
 import com.msp.assignment.service.UsersService;
@@ -36,9 +33,6 @@ public class UserServiceImpl implements UsersService {
     private UsersVerificationRepo usersVerificationRepo;
 
     @Autowired
-    private UsersContactRepo usersContactRepo;
-
-    @Autowired
     private ForgetPasswordRepo forgetPasswordRepo;
 
     @Autowired
@@ -46,26 +40,16 @@ public class UserServiceImpl implements UsersService {
 
     @Override
     @Transactional
-    public String signupUser(UsersDto usersDto) {
+    public String signupUser(Users user) {
         try {
-            Users users = new Users();
-            if (usersDto.getPassword() == null || usersDto.getPassword().isEmpty()) {
+            if (user.getPassword() == null || user.getPassword().isEmpty()) {
                 throw new IllegalArgumentException("Password cannot be empty.");
             }
-            users.setPassword(DigestUtils.md5DigestAsHex(usersDto.getPassword().getBytes()));
+            user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
+            user.setIsEmailVerified('N');
+            Users users = userRepository.save(user);
 
-            users.setIsEmailVerified('N');
-            users.setEmail(usersDto.getEmail());
-            users.setName(usersDto.getName());
-            users.setUserType(UserType.valueOf(usersDto.getUserRole()));
-            users.setLoginType(LoginType.valueOf(usersDto.getLoginType()));
-            users = userRepository.save(users);
-
-            for(UsersContact usersContact : usersDto.getUsersContacts()){
-                usersContact.setUsers(users);
-                usersContactRepo.save(usersContact);
-            }
-            sendVerificationEmail(users.getEmail());
+            sendVerificationEmail(user.getEmail());
             return String.valueOf(users.getId());
         } catch (IllegalArgumentException e) {
             throw e;
@@ -156,30 +140,12 @@ public class UserServiceImpl implements UsersService {
     public Object getAllUsers(Long id) {
         try {
             if (id != null) {
-                Optional<Users> users = userRepository.findById(id);
-
-                UsersDto dto = new UsersDto();
-                dto.setId(users.get().getId());
-                dto.setEmail(users.get().getEmail());
-                dto.setName(users.get().getName());
-                dto.setUserRole(users.get().getUserType().toString());
-                dto.setUsersContacts(usersContactRepo.findByUserId(users.get().getId()));
-                return users.orElseThrow(() -> new ResourceNotFoundException("User not found for this id: " + id));
+                Optional<Users> usersOptional = userRepository.findById(id);
+                return usersOptional.orElseThrow(()-> new ResourceNotFoundException("User not found for this id: " + id));
             } else {
                 List<Users> users = userRepository.findAll();
-                List<UsersDto> usersDto = new ArrayList<UsersDto>();
-                UsersDto dto = new UsersDto();
-                for(Users user : users){
-                    dto.setId(user.getId());
-                    dto.setEmail(user.getEmail());
-                    dto.setName(user.getName());
-                    dto.setUserRole(user.getUserType().toString());
-                    dto.setUsersContacts(usersContactRepo.findByUserId(user.getId()));
-                    usersDto.add(dto);
-                    return usersDto;
-                }
-                if (users.isEmpty()) {
-                    throw new ResourceNotFoundException("User list is null.");
+                if(users.isEmpty()){
+                    throw new ResourceNotFoundException("User list is empty.");
                 }
                 return users;
             }
@@ -189,7 +155,6 @@ public class UserServiceImpl implements UsersService {
             throw new RuntimeException("Internal server error: " + e.getMessage(), e);
         }
     }
-
 
     @Override
     @Transactional

@@ -30,6 +30,12 @@ public class Users {
     @Column(name = "password", nullable = false, columnDefinition = "VARCHAR(100)")
     private String password;
 
+    @Column(name = "phone", length = 15)
+    private String phone;
+
+    @Column(name = "address", columnDefinition = "TEXT")
+    private String address;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", columnDefinition = "VARCHAR(255)")
     private UserType userType;

@@ -1,10 +1,9 @@
 package com.msp.assignment.service;
 
-import com.msp.assignment.dto.UsersDto;
 import com.msp.assignment.model.Users;
 
 public interface UsersService {
-    String signupUser(UsersDto users);
+    String signupUser(Users user);
 
     void sendVerificationEmail(String email);
 

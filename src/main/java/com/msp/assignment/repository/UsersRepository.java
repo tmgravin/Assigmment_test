@@ -8,11 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UsersRepository extends JpaRepository<Users, Long> {
-    @EntityGraph(attributePaths = {"usersContacts"})
     Optional<Users> findById(Long id);
-
-    @EntityGraph(attributePaths = {"usersContacts"})
-    List<Users> findAll();
 
     Optional<Users> findByEmail(String email);
 }

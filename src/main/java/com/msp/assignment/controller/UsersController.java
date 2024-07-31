@@ -1,6 +1,5 @@
 package com.msp.assignment.controller;
 
-import com.msp.assignment.dto.UsersDto;
 import com.msp.assignment.exception.EmailRelatedException;
 import com.msp.assignment.exception.ResourceNotFoundException;
 import com.msp.assignment.model.Users;
@@ -29,8 +28,8 @@ public class UsersController {
     public ResponseEntity<?> getUsers(@RequestParam(name = "id", required = false) Long id) {
         log.info("Inside getUsers method of UserController.");
         try {
-            Object result = userService.getAllUsers(id);
-            return ResponseEntity.ok(result);
+            Object users = userService.getAllUsers(id);
+            return ResponseEntity.ok(users);
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
@@ -40,11 +39,10 @@ public class UsersController {
 
     //Api for user signup and sending email verification email
     @PostMapping("/")
-    public ResponseEntity<String> signupUser(@RequestBody UsersDto user, HttpSession session) {
+    public ResponseEntity<String> signupUser(@RequestBody Users user, HttpSession session) {
         log.info("Inside signupUser method of UserController.");
         try {
             String registerUser = userService.signupUser(user);
-
             //Store the email and current timestamp in the session
             session.setAttribute("userEmail", user.getEmail());
             session.setAttribute("emailStoredTime", System.currentTimeMillis());
@@ -60,10 +58,10 @@ public class UsersController {
 
     //Api for user login
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestParam String email, @RequestParam String password) {
+    public ResponseEntity<?> loginUser(@RequestBody Users users) {
         log.info("Inside loginUser method of UserController.");
         try {
-            Users user = userService.loginUser(email, password);
+            Users user = userService.loginUser(users.getEmail(), users.getPassword());
             return ResponseEntity.status(HttpStatus.OK).body(user);
         } catch (ResourceNotFoundException e) {
             log.error("Resource not found: ", e);
