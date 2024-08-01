@@ -3,10 +3,10 @@ package com.msp.assignment.repository;
 import com.msp.assignment.enumerated.ApplicationStatus;
 import com.msp.assignment.model.ProjectApplication;
 import com.msp.assignment.model.Projects;
-import com.msp.assignment.model.Users;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,6 +19,7 @@ public interface ProjectApplicationRepo extends JpaRepository<ProjectApplication
 
     List<ProjectApplication> findByProjectsAndStatus(Projects project, ApplicationStatus status);
 
-    List<ProjectApplication> findByDoer(Users doer);
+    @Query(value = "SELECT pa.id, pa.project_id, pa.doer_id,pa.status,pa.created_at, pa.updated_at  FROM project_applications pa where pa.doer_id=:doer", nativeQuery = true)
+    List<ProjectApplication> findByUsersId(@Param("doer") Long doer);
 }
 

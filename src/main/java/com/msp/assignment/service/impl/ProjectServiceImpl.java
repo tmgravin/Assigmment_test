@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -104,9 +105,12 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectApplication acceptProjectApplication(Long applicationId) {
         log.info("Inside acceptProjectApplication method of ProjectServiceImpl (com.msp.assignment.service.impl)");
 
+
+
         // Find the application to be accepted
         ProjectApplication acceptedApplication = projectApplicationRepo.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
+
 
         // Find the project related to the application
         Projects project = acceptedApplication.getProjects();
@@ -138,21 +142,21 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<ProjectApplication> getApplicationsByDoer(Users doer) {
+    public List<ProjectApplication> getApplicationsByUsersId(Long usersId) {
         log.info("Inside getApplicationsByDoer method of ProjectServiceImpl (com.msp.assignment.service.impl)");
 
+        Optional<Projects> projects = projectRepo.findByUsersId(usersId);
+
         // Find all ProjectApplications by doer
-        List<ProjectApplication> allApplications = projectApplicationRepo.findByDoer(doer);
-        log.debug("Fetched {} applications for doer with ID {}", allApplications.size(), doer.getId());
+        List<ProjectApplication> allApplications = projectApplicationRepo.findByUsersId(usersId);
+        log.debug("Fetched {} applications for doer with ID {}", allApplications.size(), usersId.getClass());
 
         // Filter the applications to include only those with ACCEPTED status
         List<ProjectApplication> acceptedApplications = allApplications.stream()
                 .filter(application -> application.getStatus() == ApplicationStatus.ACCEPTED)
                 .collect(Collectors.toList());
-        log.debug("Filtered {} accepted applications for doer with ID {}", acceptedApplications.size(), doer.getId());
+        log.debug("Filtered {} accepted applications for doer with ID {}", acceptedApplications.size(), usersId.getClass());
 
         return acceptedApplications;
     }
-
-
 }

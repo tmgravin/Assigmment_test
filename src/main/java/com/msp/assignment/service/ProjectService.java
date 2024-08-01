@@ -3,7 +3,6 @@ package com.msp.assignment.service;
 import com.msp.assignment.model.ProjectApplication;
 import com.msp.assignment.model.Projects;
 import com.msp.assignment.model.ProjectsDetails;
-import com.msp.assignment.model.Users;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -18,5 +17,5 @@ public interface ProjectService {
 //    List<Projects> getProjectsByDoerId(Long doerId);
 
 
-    List<ProjectApplication> getApplicationsByDoer(Users doer);
+    List<ProjectApplication> getApplicationsByUsersId(Long usersId);
 }

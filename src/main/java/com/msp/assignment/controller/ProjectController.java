@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/projects")
+@RequestMapping("/api/projects")
 public class ProjectController {
 
     @Autowired
@@ -150,19 +150,19 @@ public class ProjectController {
 
     // Method to get project applications by doer ID where application status is ACCEPTED
     @GetMapping("/doer")
-    public ResponseEntity<List<ProjectApplication>> getApplicationsByDoerAndStatus(@RequestParam Long doerId) {
+    public ResponseEntity<List<ProjectApplication>> getApplicationsByDoerAndStatus(@RequestParam Long doer) {
         log.info("Inside getApplicationsByDoerAndStatus method of ProjectController");
         try {
-            // Fetch Users object by ID
-            Users doer = usersService.getUserById(doerId);
-            log.debug("Fetched user with ID: {}", doerId);
+//            // Fetch Users object by ID
+//            Users doer = usersService.(doerId);
+//            log.debug("Fetched user with ID: {}", doerId);
 
             // Fetch and return the applications
-            List<ProjectApplication> applications = projectService.getApplicationsByDoer(doer);
-            log.info("Fetched {} applications for doer ID {}", applications.size(), doerId);
+            List<ProjectApplication> applications = projectService.getApplicationsByUsersId(doer);
+            log.info("Fetched {} applications for doer ID {}", applications.size(), doer);
             return ResponseEntity.ok(applications);
         } catch (IllegalArgumentException e) {
-            log.error("User not found with ID: {}", doerId, e);
+            log.error("User not found with ID: {}", doer, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
             log.error("Error fetching applications by doer ID", e);
