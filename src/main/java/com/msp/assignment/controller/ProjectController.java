@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
@@ -73,7 +74,7 @@ public class ProjectController {
                     return projectDetails;
                 }).collect(Collectors.toList());
 
-                return ResponseEntity.ok(allProjectDetails);
+                return ResponseEntity.status(HttpStatus.OK).body(allProjectDetails);
             }
         } catch (Exception e) {
             log.error("Error fetching project details", e);
@@ -111,7 +112,7 @@ public class ProjectController {
             Projects savedProject = projectService.addProject(projects, projectsDetails, projectUrl);
 
             log.info("Project created successfully with ID: {}", savedProject.getId());
-            return ResponseEntity.status(HttpStatus.OK).body(savedProject);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedProject);
         } catch (IllegalArgumentException e) {
             log.error("Error parsing request parameters", e);
             return ResponseEntity.badRequest().body(null);
@@ -143,7 +144,7 @@ public class ProjectController {
         try {
             ProjectApplication application = projectService.acceptProjectApplication(applicationId);
             log.info("Application accepted successfully with ID: {}", application.getId());
-            return ResponseEntity.ok(application);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(application);
         } catch (Exception e) {
             log.error("Error accepting project application", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -162,7 +163,7 @@ public class ProjectController {
             // Fetch and return the applications
             List<ProjectApplication> applications = projectService.getApplicationsByUsersId(doer);
             log.info("Fetched {} applications for doer ID {}", applications.size(), doer);
-            return ResponseEntity.ok(applications);
+            return ResponseEntity.status(HttpStatus.OK).body(applications);
         } catch (IllegalArgumentException e) {
             log.error("User not found with ID: {}", doer, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -170,5 +171,15 @@ public class ProjectController {
             log.error("Error fetching applications by doer ID", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+
+    @GetMapping("/total-projects")
+    public ResponseEntity<?> countAllProjects(){
+        return ResponseEntity.status(HttpStatus.OK).body(projectService.countAllProjects());
+    }
+
+    @DeleteMapping("/delete")
+    public void deteProject(Long id) throws IOException {
+        projectService.deleteProject(id);
     }
 }

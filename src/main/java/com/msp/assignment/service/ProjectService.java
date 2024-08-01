@@ -5,6 +5,7 @@ import com.msp.assignment.model.Projects;
 import com.msp.assignment.model.ProjectsDetails;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -14,8 +15,11 @@ public interface ProjectService {
     ProjectApplication applyForProject(Long projectId, Long doerId);
 
     ProjectApplication acceptProjectApplication(Long applicationId);
-//    List<Projects> getProjectsByDoerId(Long doerId);
-
 
     List<ProjectApplication> getApplicationsByUsersId(Long usersId);
+
+
+    Long countAllProjects();
+
+    void deleteProject(Long id) throws IOException;
 }

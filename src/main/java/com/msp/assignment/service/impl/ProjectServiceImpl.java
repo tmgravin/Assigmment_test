@@ -159,4 +159,17 @@ public class ProjectServiceImpl implements ProjectService {
 
         return acceptedApplications;
     }
+
+    @Override
+    public Long countAllProjects() {
+        return projectRepo.countAllProjects();
+    }
+
+    @Override
+    public void deleteProject(Long id) throws IOException {
+        projectRepo.deleteById(id);
+        projectDetailsRepo.deleteById(id);
+        Optional<ProjectsDetails> projectsDetails = projectDetailsRepo.findByProjectsId(id);
+        fileUtils.deleteFileIfExists(projectsDetails.get().getProjectUrl());
+    }
 }

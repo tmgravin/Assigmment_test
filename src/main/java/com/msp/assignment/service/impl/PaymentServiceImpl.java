@@ -20,7 +20,7 @@ public class PaymentServiceImpl implements PaymentsService {
 
     @Override
     public List<Payments> getPayments(Long id) {
-        return paymentRepo.find(id);
+        return List.of();
     }
 
     @Override
