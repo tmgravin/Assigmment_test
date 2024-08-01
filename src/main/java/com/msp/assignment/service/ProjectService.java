@@ -1,6 +1,5 @@
 package com.msp.assignment.service;
 
-import com.msp.assignment.enumerated.ApplicationStatus;
 import com.msp.assignment.model.ProjectApplication;
 import com.msp.assignment.model.Projects;
 import com.msp.assignment.model.ProjectsDetails;
