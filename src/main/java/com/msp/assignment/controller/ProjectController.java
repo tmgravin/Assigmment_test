@@ -1,7 +1,5 @@
 package com.msp.assignment.controller;
 
-
-import com.msp.assignment.enumerated.ApplicationStatus;
 import com.msp.assignment.enumerated.ExperienceYear;
 import com.msp.assignment.enumerated.LevelOfExperience;
 import com.msp.assignment.enumerated.Scope;
@@ -13,7 +11,6 @@ import com.msp.assignment.service.ProjectDetailsService;
 import com.msp.assignment.service.ProjectService;
 import com.msp.assignment.service.UsersService;
 import com.msp.assignment.utils.FileUtils;
-import org.apache.catalina.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +25,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/project")
+@RequestMapping("/projects")
 public class ProjectController {
+
     @Autowired
     private ProjectService projectService;
 
@@ -42,39 +40,46 @@ public class ProjectController {
     @Autowired
     private UsersService usersService;
 
-
     private static final Logger log = LoggerFactory.getLogger(ProjectController.class);
 
-    //    Method for get project By creator Id
+    // Method for getting project details by creator ID
     @GetMapping("/byUser")
     public ResponseEntity<List<ProjectsDetails>> getProjectDetailsByUserId(@RequestParam(name = "userId", required = true) Long userId) {
-        List<ProjectsDetails> projectDetails = projectService.getProjectDetailsByUserId(userId);
-        return ResponseEntity.ok(projectDetails);
+        log.info("Inside getProjectDetailsByUserId method of ProjectController");
+        try {
+            List<ProjectsDetails> projectDetails = projectService.getProjectDetailsByUserId(userId);
+            log.debug("Fetched {} project details for user ID {}", projectDetails.size(), userId);
+            return ResponseEntity.ok(projectDetails);
+        } catch (Exception e) {
+            log.error("Error fetching project details by user ID", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
-    //    Method for get all project and also get project By Id
+    // Method for getting all project details or project details by ID
     @GetMapping("/")
     public ResponseEntity<?> getProjectDetails(@RequestParam(name = "id", required = false) Long id) {
+        log.info("Inside getProjectDetails method of ProjectController");
         try {
             if (id != null) {
+                log.debug("Fetching project details for ID {}", id);
                 return ResponseEntity.ok(projectDetailsService.get(id));
-
             } else {
-                List<ProjectsDetails> allProjectDetails = projectDetailsService.getAll().stream().map(ProjectsDetails -> {
-//                    ProjectsDetails.setProjects(null);
-                    ProjectsDetails.getProjects().getUsers();
-                    return ProjectsDetails;
+                log.debug("Fetching all project details");
+                List<ProjectsDetails> allProjectDetails = projectDetailsService.getAll().stream().map(projectDetails -> {
+                    projectDetails.getProjects().getUsers();
+                    return projectDetails;
                 }).collect(Collectors.toList());
 
                 return ResponseEntity.ok(allProjectDetails);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error fetching project details", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getLocalizedMessage());
         }
     }
 
-    //Method for create project
+    // Method for creating a project with details
     @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Projects> addProjectWithDetails(
             @RequestParam("scope") String scope,
@@ -87,10 +92,8 @@ public class ProjectController {
             @RequestParam("users") Users users) {
         log.info("Inside addProjectWithDetails method of ProjectController");
         try {
-
             // Create and set project details
             ProjectsDetails projectsDetails = new ProjectsDetails();
-//            projectsDetails.setProjectStatus(ProjectStatus.valueOf(projectStatus.trim())); // Trim the input to remove any extra spaces
             projectsDetails.setScope(Scope.valueOf(scope.trim())); // Trim the input to remove any extra spaces
             projectsDetails.setExperienceYear(ExperienceYear.valueOf(experienceYear.trim())); // Trim the input to remove any extra spaces
             projectsDetails.setLevelOfExperience(LevelOfExperience.valueOf(levelOfExperience.trim())); // Trim the input to remove any extra spaces
@@ -101,18 +104,17 @@ public class ProjectController {
             projects.setProjectAmount(projectAmount);
             projects.setProjectDeadline(Timestamp.valueOf(projectDeadline.toString()));
 
+            log.debug("Saving project with details: {}", projects);
             // Add project with details
             Projects savedProject = projectService.addProject(projects, projectsDetails, projectUrl);
 
-            // Return the saved project
+            log.info("Project created successfully with ID: {}", savedProject.getId());
             return ResponseEntity.ok(savedProject);
-
         } catch (IllegalArgumentException e) {
             log.error("Error parsing request parameters", e);
             return ResponseEntity.badRequest().body(null);
         } catch (Exception e) {
             log.error("Error handling file or saving project", e);
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
@@ -121,10 +123,13 @@ public class ProjectController {
     @PostMapping("/apply")
     public ResponseEntity<ProjectApplication> applyForProject(@RequestParam("projectId") Long projectId,
                                                               @RequestParam("doerId") Long doerId) {
+        log.info("Inside applyForProject method of ProjectController");
         try {
             ProjectApplication application = projectService.applyForProject(projectId, doerId);
+            log.info("Application created successfully with ID: {}", application.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(application);
         } catch (Exception e) {
+            log.error("Error applying for project", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
@@ -132,32 +137,35 @@ public class ProjectController {
     // Method to accept a project application
     @PostMapping("/acceptApplication")
     public ResponseEntity<ProjectApplication> acceptApplication(@RequestParam("applicationId") Long applicationId) {
+        log.info("Inside acceptApplication method of ProjectController");
         try {
             ProjectApplication application = projectService.acceptProjectApplication(applicationId);
+            log.info("Application accepted successfully with ID: {}", application.getId());
             return ResponseEntity.ok(application);
         } catch (Exception e) {
+            log.error("Error accepting project application", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-    //    Method to get project by doer ID where application accepted
+    // Method to get project applications by doer ID where application status is ACCEPTED
     @GetMapping("/doer")
-    public ResponseEntity<List<ProjectApplication>> getApplicationsByDoerAndStatus(
-            @RequestParam Long doerId) {
-
+    public ResponseEntity<List<ProjectApplication>> getApplicationsByDoerAndStatus(@RequestParam Long doerId) {
+        log.info("Inside getApplicationsByDoerAndStatus method of ProjectController");
         try {
             // Fetch Users object by ID
             Users doer = usersService.getUserById(doerId);
+            log.debug("Fetched user with ID: {}", doerId);
 
             // Fetch and return the applications
             List<ProjectApplication> applications = projectService.getApplicationsByDoer(doer);
+            log.info("Fetched {} applications for doer ID {}", applications.size(), doerId);
             return ResponseEntity.ok(applications);
-
         } catch (IllegalArgumentException e) {
-            // Handle user not found scenario
+            log.error("User not found with ID: {}", doerId, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
-            // Handle other exceptions
+            log.error("Error fetching applications by doer ID", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
