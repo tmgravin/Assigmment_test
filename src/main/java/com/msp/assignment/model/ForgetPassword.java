@@ -19,13 +19,13 @@ public class ForgetPassword {
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false, insertable = false)
     private Timestamp createdAt;
 
-    @Column(name = "expired_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", nullable = false)
+    @Column(name = "expired_at")
     private Timestamp expiredAt;
 
-    @Column(name = "is_verified", columnDefinition = "CHAR(1) DEFAULT 'N'")
-    private char isVerified;
+    @Column(name = "is_verified", length = 1)
+    private String isVerified;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private Users users;
 }

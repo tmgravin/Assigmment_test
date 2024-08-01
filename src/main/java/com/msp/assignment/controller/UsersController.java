@@ -1,122 +1,194 @@
 package com.msp.assignment.controller;
 
+import com.msp.assignment.exception.EmailRelatedException;
+import com.msp.assignment.exception.ResourceNotFoundException;
+import com.msp.assignment.model.ForgetPassword;
 import com.msp.assignment.model.Users;
 import com.msp.assignment.service.UsersService;
+import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
-import javax.validation.Valid;
-import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@CrossOrigin
+@RequestMapping("/api/users")
 public class UsersController {
+    private static final Logger log = LoggerFactory.getLogger(UsersController.class);
+
     @Autowired
-    private UsersService usersService;
+    private UsersService userService;
 
-    public UsersController(UsersService usersService) {
-        this.usersService = usersService;
+    //Api for get users by id
+    @GetMapping("/")
+    public ResponseEntity<?> getUsers(@RequestParam(name = "id") Long id) {
+        log.info("Inside getUsers method of UserController.");
+        try {
+            Optional<Users> user = userService.getUser(id);
+            return ResponseEntity.ok(user);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
-    //    @PostMapping("/signup")
-//    public Users signUp(@RequestBody Users user) {
-//        return usersService.signup(user);
-//    }
-//
-//    @PostMapping("/login")
-//    public Users login(@RequestBody Users user) {
-//        return usersService.login(user.getEmail(), user.getPassword());
-//    }
-//
-//    // Update an existing user
-//    @PutMapping("/{id}")
-//    public Users updateUser(@PathVariable(name = "id") Long id, @RequestBody Users user) {
-//        return usersService.updateUser(id, user);
-//    }
-//
-//    // Get a user by ID
-//    @GetMapping("/{id}")
-//    public Users getUserById(@PathVariable Long id) {
-//        return usersService.getUserById(id);
-//    }
-//
-//    // Get a user by email
-//    @GetMapping("/email")
-//    public Users getUserByEmail(@RequestParam String email) {
-//        return usersService.getUserByEmail(email);
-//    }
-//
-//    // Get all users
-//    @GetMapping("/allusers")
-//    public List<Users> getAllUsers() {
-//        return usersService.getAllUsers();
-//    }
-//
-//    // Delete a user by ID
-//    @DeleteMapping("/{id}")
-//    public void deleteUser(@PathVariable Long id) {
-//        usersService.deleteUser(id);
-//    }
-//}
-    @PostMapping("/signup")
-    public ResponseEntity<Users> signUp(@Valid @RequestBody Users user) {
-        Users createdUser = usersService.signup(user);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    //Api for user signup and sending email verification email
+    @PostMapping("/")
+    public ResponseEntity<String> signupUser(@RequestBody Users user, HttpSession session) {
+        log.info("Inside signupUser method of UserController.");
+        try {
+            userService.signupUser(user);
+            return ResponseEntity.status(HttpStatus.OK).body("User signup successfully. Please verify your email for login.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
+    //Api for user login
     @PostMapping("/login")
-    public ResponseEntity<Users> login(@RequestParam String email, @RequestParam String password) {
-        Users user = usersService.login(email, password);
-        if (user != null) {
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<?> loginUser(@RequestBody Users users) {
+        log.info("Inside loginUser method of UserController.");
+        try {
+            users = userService.loginUser(users.getEmail(), users.getPassword());
+            return ResponseEntity.status(HttpStatus.OK).body(users);
+        } catch (ResourceNotFoundException e) {
+            log.error("Resource not found: ", e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (RuntimeException e) {
+            log.error("Runtime exception: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Users> updateUser(@PathVariable Long id, @Valid @RequestBody Users user) {
-        Users updatedUser = usersService.updateUser(id, user);
-        if (updatedUser != null) {
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    //Api for requesting email verification again
+    @PostMapping("/requestEmailToken")
+    public ResponseEntity<String> resendVerificationEmail(@RequestBody Users user) {
+        log.info("Inside resendVerificationEmail method of UserController.");
+        try {
+            userService.sendVerificationEmail(user.getEmail());
+            return ResponseEntity.status(HttpStatus.OK).body("Email verification token is send again successfully.");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (EmailRelatedException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Users> getUserById(@PathVariable Long id) {
-        Users user = usersService.getUserById(id);
-        if (user != null) {
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    //Api for verifying email token
+    @GetMapping("/verifyEmail")
+    public ModelAndView verifyEmailToken(@RequestParam("token") String verificationToken) {
+        log.info("Inside verifyEmailToken method of UserController.");
+        ModelAndView modelAndView = new ModelAndView();
+        try {
+            userService.verifyEmailToken(verificationToken);
+            modelAndView.setViewName("Assignment_verifySuccess");
+        } catch (IllegalStateException e) {
+            log.error("Verification token expired.", e);
+            modelAndView.addObject("error", e.getMessage());
+            modelAndView.setViewName("Assignment_error");
+        } catch (ResourceNotFoundException e) {
+            log.error("User doesn't exist with this email.", e);
+            modelAndView.addObject("error", e.getMessage());
+            modelAndView.setViewName("Assignment_error");
+        } catch (IllegalArgumentException e) {
+            log.error("Verification process failed.", e);
+            modelAndView.addObject("error", e.getMessage());
+            modelAndView.setViewName("Assignment_error");
+        } catch (Exception e) {
+            log.error("Internal server error.", e);
+            modelAndView.addObject("error", e.getMessage());
+            modelAndView.setViewName("Assignment_error");
+        }
+        return modelAndView;
+    }
+
+    //Api for updating user
+    @PutMapping("/updateUser/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody Users user) {
+        log.info("Inside updateUser method of UserController (authentication)");
+        try {
+            Users updatedUser = userService.updateUser(id, user);
+            return ResponseEntity.ok(updatedUser);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @GetMapping("/email")
-    public ResponseEntity<Users> getUserByEmail(@RequestParam String email) {
-        Users user = usersService.getUserByEmail(email);
-        if (user != null) {
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    //Api for deleting user
+    @DeleteMapping("deleteUser/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @GetMapping("/allusers")
-    public ResponseEntity<List<Users>> getAllUsers() {
-        List<Users> users = usersService.getAllUsers();
-        return new ResponseEntity<>(users, HttpStatus.OK);
+    //Api for forget password and sending reset code
+    @PostMapping("/forgetPassword")
+    public ResponseEntity<String> forgetPassword(@RequestBody Users users) {
+        log.info("Inside forgetPassword method of UserController (authentication)");
+        try {
+            userService.forgetPassword(users.getEmail());
+            return ResponseEntity.status(HttpStatus.OK).body("Password verification code is send to your email.");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (EmailRelatedException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        usersService.deleteUser(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    //Api for verifying password reset code
+    @PostMapping("/verifyResetCode")
+    public ResponseEntity<String> verifyPasswordResetCode(@RequestBody ForgetPassword forgetPassword) {
+        log.info("Inside verifyPasswordResetCode method of UserController (authentication)");
+        try {
+            userService.verifyPasswordResetCode(forgetPassword.getCode());
+            return ResponseEntity.status(HttpStatus.OK).body("Password Reset code verified successfully.");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+
     }
+
+    //Api for resetting password
+    @PostMapping("/resetPassword")
+    public ResponseEntity<String> resetPassword(@RequestBody Users user) {
+        log.info("Inside resetPassword method of UserController (authentication)");
+        try {
+            userService.resetPassword(user.getPassword());
+            return ResponseEntity.status(HttpStatus.OK).body("Password reset successfully.");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
 }
 
 

@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name ="users")
@@ -16,24 +18,33 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, columnDefinition = "VARCHAR(50)")
+    @Column(name = "name", columnDefinition = "VARCHAR(50)", nullable = false)
     private String name;
 
-    @Column(name = "email", unique = true, nullable = false, columnDefinition = "VARCHAR(100)")
+    @Column(name = "email", columnDefinition = "VARCHAR(100)", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "password", nullable = false, columnDefinition = "VARCHAR(100)")
+    @Column(name = "is_emailVerified", columnDefinition = "CHAR(1) default 'N'", nullable = false)
+    private char isEmailVerified;
+
+    @Column(name = "password", columnDefinition = "VARCHAR(100)", nullable = false)
     private String password;
+
+    @Column(name = "phone", length = 15, nullable = false)
+    private String phone;
+
+    @Column(name = "address", columnDefinition = "TEXT", nullable = false)
+    private String address;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", columnDefinition = "VARCHAR(255)", nullable = false)
     private UserType userType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "register_type", columnDefinition = "VARCHAR(255)", nullable = false)
+    @Column(name = "login_type", columnDefinition = "VARCHAR(255)")
     private LoginType loginType;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false, insertable = false)
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
     private Timestamp createdAt;
 
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false)
