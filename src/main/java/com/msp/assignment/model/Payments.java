@@ -1,7 +1,6 @@
 package com.msp.assignment.model;
 
 import com.msp.assignment.enumerated.PaymentMethod;
-import com.msp.assignment.enumerated.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.sql.Timestamp;
@@ -19,10 +18,6 @@ public class Payments {
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false)
     private PaymentMethod paymentMethod;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "payment_status", nullable = false)
-    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
     @Column(name = "is_payment_verified")
     private String isPaymentVerified;
