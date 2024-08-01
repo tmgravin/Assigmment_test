@@ -20,11 +20,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/projects")
 public class ProjectController {
 
@@ -88,7 +90,7 @@ public class ProjectController {
             @RequestParam("projectUrl") MultipartFile projectUrl,
             @RequestParam("projectName") String projectName,
             @RequestParam("projectAmount") String projectAmount,
-            @RequestParam("projectDeadline") Timestamp projectDeadline,
+            @RequestParam("projectDeadline") Date projectDeadline,
             @RequestParam("users") Users users) {
         log.info("Inside addProjectWithDetails method of ProjectController");
         try {
@@ -102,14 +104,14 @@ public class ProjectController {
             projects.setUsers(users);
             projects.setProjectName(projectName);
             projects.setProjectAmount(projectAmount);
-            projects.setProjectDeadline(Timestamp.valueOf(projectDeadline.toString()));
+            projects.setProjectDeadline(Date.valueOf(projectDeadline.toString()));
 
             log.debug("Saving project with details: {}", projects);
             // Add project with details
             Projects savedProject = projectService.addProject(projects, projectsDetails, projectUrl);
 
             log.info("Project created successfully with ID: {}", savedProject.getId());
-            return ResponseEntity.ok(savedProject);
+            return ResponseEntity.status(HttpStatus.OK).body(savedProject);
         } catch (IllegalArgumentException e) {
             log.error("Error parsing request parameters", e);
             return ResponseEntity.badRequest().body(null);

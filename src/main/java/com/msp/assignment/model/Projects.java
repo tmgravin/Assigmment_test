@@ -5,6 +5,7 @@ import com.msp.assignment.model.Users;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 
 @Entity
@@ -23,7 +24,7 @@ public class Projects {
     private String projectAmount;
 
     @Column(name = "project_deadline", nullable = false)
-    private Timestamp projectDeadline;
+    private Date projectDeadline;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
     private Timestamp createdAt;
