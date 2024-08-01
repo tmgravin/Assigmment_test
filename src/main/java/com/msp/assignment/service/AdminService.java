@@ -10,7 +10,6 @@ public interface AdminService {
 
     List<Users> getUsersByRole(UserType userType);
 
-
     Integer countUsersByUserType(UserType userType);
 
 }

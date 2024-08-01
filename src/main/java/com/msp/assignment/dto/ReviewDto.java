@@ -11,9 +11,4 @@ public class ReviewDto
 	private Long projectId;
 	private Integer likesCount;
 	private Integer disLikesCount;
-	
-	public void setReviewData(Review review)
-	{
-		this.review = review;
-	}
 }

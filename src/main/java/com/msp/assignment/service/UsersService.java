@@ -1,5 +1,6 @@
 package com.msp.assignment.service;
 
+import com.msp.assignment.dto.UsersDto;
 import com.msp.assignment.model.Users;
 
 import java.util.Optional;
@@ -23,5 +24,7 @@ public interface UsersService {
 
     void verifyPasswordResetCode(int verificationCode);
 
-    void resetPassword(String newPassword);
+    void resetPassword(String Password);
+
+    void changePassword(UsersDto usersDto);
 }
