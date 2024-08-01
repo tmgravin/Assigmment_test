@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -41,10 +41,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private ProjectApplicationRepo projectApplicationRepo;
 
-
     @Override
     public Projects addProject(Projects project, ProjectsDetails details, MultipartFile file) {
-        log.info("Adding project with ID: {}", project.getId());
+        log.info("Inside addProject method of ProjectServiceImpl (com.msp.assignment.service.impl)");
 
         try {
             // Save project first
@@ -60,7 +59,7 @@ public class ProjectServiceImpl implements ProjectService {
                 log.info("File uploaded and saved to path: {}", filePath);
             }
 
-// Set default project status to PENDING
+            // Set default project status to PENDING
             details.setProjectStatus(ProjectStatus.PENDING);
 
             // Set the project reference in projectDetails
@@ -69,7 +68,6 @@ public class ProjectServiceImpl implements ProjectService {
             // Save project details
             projectDetailsRepo.save(details);
             log.info("Project details saved for project ID: {}", savedProject.getId());
-
 
             return savedProject;
 
@@ -84,11 +82,13 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ProjectsDetails> getProjectDetailsByUserId(Long userId) {
+        log.info("Inside getProjectDetailsByUserId method of ProjectServiceImpl (com.msp.assignment.service.impl)");
         return projectDetailsRepo.findProjectsDetailsByUserId(userId);
     }
 
     @Override
     public ProjectApplication applyForProject(Long projectId, Long doerId) {
+        log.info("Inside applyForProject method of ProjectServiceImpl (com.msp.assignment.service.impl)");
         Projects project = projectRepo.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
         Users doer = usersRepository.findById(doerId).orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -102,14 +102,57 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectApplication acceptProjectApplication(Long applicationId) {
-        ProjectApplication application = projectApplicationRepo.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
+        log.info("Inside acceptProjectApplication method of ProjectServiceImpl (com.msp.assignment.service.impl)");
 
-        ProjectsDetails projectsDetails = (ProjectsDetails) projectDetailsRepo.findByProjectsId(application.getProjects().getId()).orElseThrow(() -> new RuntimeException("Project details not found"));
+        // Find the application to be accepted
+        ProjectApplication acceptedApplication = projectApplicationRepo.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
 
+        // Find the project related to the application
+        Projects project = acceptedApplication.getProjects();
+
+        // Find the project details
+        ProjectsDetails projectsDetails = projectDetailsRepo.findByProjectsId(project.getId())
+                .orElseThrow(() -> new RuntimeException("Project details not found"));
+
+        // Set the project status to ON_GOING
         projectsDetails.setProjectStatus(ProjectStatus.ON_GOING);
         projectDetailsRepo.save(projectsDetails);
 
-        application.setStatus(ApplicationStatus.ACCEPTED);
-        return projectApplicationRepo.save(application);
+        // Update the status of the accepted application
+        acceptedApplication.setStatus(ApplicationStatus.ACCEPTED);
+        projectApplicationRepo.save(acceptedApplication);
+
+        // Find all other pending applications for the same project
+        List<ProjectApplication> otherApplications = projectApplicationRepo.findByProjectsAndStatus(project, ApplicationStatus.PENDING);
+
+        // Update the status of these other applications to REJECTED
+        for (ProjectApplication application : otherApplications) {
+            if (!application.getId().equals(applicationId)) {
+                application.setStatus(ApplicationStatus.REJECTED);
+                projectApplicationRepo.save(application);
+            }
+        }
+
+        return acceptedApplication;
     }
+
+    @Override
+    public List<ProjectApplication> getApplicationsByDoer(Users doer) {
+        log.info("Inside getApplicationsByDoer method of ProjectServiceImpl (com.msp.assignment.service.impl)");
+
+        // Find all ProjectApplications by doer
+        List<ProjectApplication> allApplications = projectApplicationRepo.findByDoer(doer);
+        log.debug("Fetched {} applications for doer with ID {}", allApplications.size(), doer.getId());
+
+        // Filter the applications to include only those with ACCEPTED status
+        List<ProjectApplication> acceptedApplications = allApplications.stream()
+                .filter(application -> application.getStatus() == ApplicationStatus.ACCEPTED)
+                .collect(Collectors.toList());
+        log.debug("Filtered {} accepted applications for doer with ID {}", acceptedApplications.size(), doer.getId());
+
+        return acceptedApplications;
+    }
+
+
 }

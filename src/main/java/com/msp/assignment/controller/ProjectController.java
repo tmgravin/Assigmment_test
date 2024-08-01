@@ -1,6 +1,7 @@
 package com.msp.assignment.controller;
 
 
+import com.msp.assignment.enumerated.ApplicationStatus;
 import com.msp.assignment.enumerated.ExperienceYear;
 import com.msp.assignment.enumerated.LevelOfExperience;
 import com.msp.assignment.enumerated.Scope;
@@ -10,7 +11,9 @@ import com.msp.assignment.model.ProjectsDetails;
 import com.msp.assignment.model.Users;
 import com.msp.assignment.service.ProjectDetailsService;
 import com.msp.assignment.service.ProjectService;
+import com.msp.assignment.service.UsersService;
 import com.msp.assignment.utils.FileUtils;
+import org.apache.catalina.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,15 +39,20 @@ public class ProjectController {
     @Autowired
     private ProjectDetailsService projectDetailsService;
 
+    @Autowired
+    private UsersService usersService;
+
 
     private static final Logger log = LoggerFactory.getLogger(ProjectController.class);
 
+    //    Method for get project By creator Id
     @GetMapping("/byUser")
     public ResponseEntity<List<ProjectsDetails>> getProjectDetailsByUserId(@RequestParam(name = "userId", required = true) Long userId) {
         List<ProjectsDetails> projectDetails = projectService.getProjectDetailsByUserId(userId);
         return ResponseEntity.ok(projectDetails);
     }
 
+    //    Method for get all project and also get project By Id
     @GetMapping("/")
     public ResponseEntity<?> getProjectDetails(@RequestParam(name = "id", required = false) Long id) {
         try {
@@ -66,7 +74,7 @@ public class ProjectController {
         }
     }
 
-
+    //Method for create project
     @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Projects> addProjectWithDetails(
             @RequestParam("scope") String scope,
@@ -128,6 +136,28 @@ public class ProjectController {
             ProjectApplication application = projectService.acceptProjectApplication(applicationId);
             return ResponseEntity.ok(application);
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    //    Method to get project by doer ID where application accepted
+    @GetMapping("/doer")
+    public ResponseEntity<List<ProjectApplication>> getApplicationsByDoerAndStatus(
+            @RequestParam Long doerId) {
+
+        try {
+            // Fetch Users object by ID
+            Users doer = usersService.getUserById(doerId);
+
+            // Fetch and return the applications
+            List<ProjectApplication> applications = projectService.getApplicationsByDoer(doer);
+            return ResponseEntity.ok(applications);
+
+        } catch (IllegalArgumentException e) {
+            // Handle user not found scenario
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            // Handle other exceptions
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }

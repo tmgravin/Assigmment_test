@@ -1,12 +1,14 @@
 package com.msp.assignment.service;
 
+import com.msp.assignment.enumerated.ApplicationStatus;
 import com.msp.assignment.model.ProjectApplication;
 import com.msp.assignment.model.Projects;
 import com.msp.assignment.model.ProjectsDetails;
+import com.msp.assignment.model.Users;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
+
 
 public interface ProjectService {
     Projects addProject(Projects projects, ProjectsDetails projectsDetails, MultipartFile projectUrl);
@@ -14,5 +16,8 @@ public interface ProjectService {
     ProjectApplication applyForProject(Long projectId, Long doerId);
 
     ProjectApplication acceptProjectApplication(Long applicationId);
+//    List<Projects> getProjectsByDoerId(Long doerId);
 
+
+    List<ProjectApplication> getApplicationsByDoer(Users doer);
 }
