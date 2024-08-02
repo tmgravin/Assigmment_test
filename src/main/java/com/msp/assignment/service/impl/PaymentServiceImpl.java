@@ -15,13 +15,9 @@ public class PaymentServiceImpl implements PaymentsService {
 
     @Override
     public Payments savePayment(Payments payments) {
-        return null;
+        return paymentRepo.save(payments);
     }
 
-    @Override
-    public List<Payments> getPayments(Long id) {
-        return List.of();
-    }
 
     @Override
     public List<Payments> findByProjectsId(Long projectsId) {

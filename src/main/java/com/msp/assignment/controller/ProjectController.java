@@ -1,12 +1,7 @@
 package com.msp.assignment.controller;
 
-import com.msp.assignment.enumerated.ExperienceYear;
-import com.msp.assignment.enumerated.LevelOfExperience;
-import com.msp.assignment.enumerated.Scope;
-import com.msp.assignment.model.ProjectApplication;
-import com.msp.assignment.model.Projects;
-import com.msp.assignment.model.ProjectsDetails;
-import com.msp.assignment.model.Users;
+import com.msp.assignment.message.ApiResponse;
+import com.msp.assignment.model.*;
 import com.msp.assignment.service.ProjectDetailsService;
 import com.msp.assignment.service.ProjectService;
 import com.msp.assignment.service.UsersService;
@@ -22,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,7 +76,7 @@ public class ProjectController {
         }
     }
 
-    // Method for creating a project with details
+    // Controller method
     @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Projects> addProjectWithDetails(
             @RequestParam("scope") String scope,
@@ -92,25 +86,12 @@ public class ProjectController {
             @RequestParam("projectName") String projectName,
             @RequestParam("projectAmount") String projectAmount,
             @RequestParam("projectDeadline") Date projectDeadline,
-            @RequestParam("users") Users users) {
+            @RequestParam("users") Users users,
+            @RequestParam("budgets") String budgets,
+            @RequestParam("projectCategory") ProjectCategory projectCategory) {
         log.info("Inside addProjectWithDetails method of ProjectController");
         try {
-            // Create and set project details
-            ProjectsDetails projectsDetails = new ProjectsDetails();
-            projectsDetails.setScope(Scope.valueOf(scope.trim())); // Trim the input to remove any extra spaces
-            projectsDetails.setExperienceYear(ExperienceYear.valueOf(experienceYear.trim())); // Trim the input to remove any extra spaces
-            projectsDetails.setLevelOfExperience(LevelOfExperience.valueOf(levelOfExperience.trim())); // Trim the input to remove any extra spaces
-
-            Projects projects = new Projects();
-            projects.setUsers(users);
-            projects.setProjectName(projectName);
-            projects.setProjectAmount(projectAmount);
-            projects.setProjectDeadline(Date.valueOf(projectDeadline.toString()));
-
-            log.debug("Saving project with details: {}", projects);
-            // Add project with details
-            Projects savedProject = projectService.addProject(projects, projectsDetails, projectUrl);
-
+            Projects savedProject = projectService.addProject(scope, experienceYear, levelOfExperience, projectUrl, projectName, projectAmount, projectDeadline, users, budgets, projectCategory);
             log.info("Project created successfully with ID: {}", savedProject.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(savedProject);
         } catch (IllegalArgumentException e) {
@@ -130,8 +111,10 @@ public class ProjectController {
         try {
             ProjectApplication application = projectService.applyForProject(projectId, doerId);
             log.info("Application created successfully with ID: {}", application.getId());
+            ApiResponse<ProjectApplication> response = new ApiResponse<>(true, "Applied Successfully", null);
             return ResponseEntity.status(HttpStatus.CREATED).body(application);
         } catch (Exception e) {
+            ApiResponse<ProjectApplication> response = new ApiResponse<>(false, "Applied Failed", null);
             log.error("Error applying for project", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
@@ -156,10 +139,6 @@ public class ProjectController {
     public ResponseEntity<List<ProjectApplication>> getApplicationsByDoerAndStatus(@RequestParam Long doer) {
         log.info("Inside getApplicationsByDoerAndStatus method of ProjectController");
         try {
-//            // Fetch Users object by ID
-//            Users doer = usersService.(doerId);
-//            log.debug("Fetched user with ID: {}", doerId);
-
             // Fetch and return the applications
             List<ProjectApplication> applications = projectService.getApplicationsByUsersId(doer);
             log.info("Fetched {} applications for doer ID {}", applications.size(), doer);
@@ -174,7 +153,7 @@ public class ProjectController {
     }
 
     @GetMapping("/total-projects")
-    public ResponseEntity<?> countAllProjects(){
+    public ResponseEntity<?> countAllProjects() {
         return ResponseEntity.status(HttpStatus.OK).body(projectService.countAllProjects());
     }
 

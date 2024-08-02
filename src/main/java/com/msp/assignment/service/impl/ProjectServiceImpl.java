@@ -1,11 +1,7 @@
 package com.msp.assignment.service.impl;
 
-import com.msp.assignment.enumerated.ApplicationStatus;
-import com.msp.assignment.enumerated.ProjectStatus;
-import com.msp.assignment.model.ProjectApplication;
-import com.msp.assignment.model.Projects;
-import com.msp.assignment.model.ProjectsDetails;
-import com.msp.assignment.model.Users;
+import com.msp.assignment.enumerated.*;
+import com.msp.assignment.model.*;
 import com.msp.assignment.repository.ProjectApplicationRepo;
 import com.msp.assignment.repository.ProjectDetailsRepo;
 import com.msp.assignment.repository.ProjectRepo;
@@ -19,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,31 +40,54 @@ public class ProjectServiceImpl implements ProjectService {
     private ProjectApplicationRepo projectApplicationRepo;
 
     @Override
-    public Projects addProject(Projects project, ProjectsDetails details, MultipartFile file) {
-        log.info("Inside addProject method of ProjectServiceImpl (com.msp.assignment.service.impl)");
+    public Projects addProject(
+            String scope, String experienceYear, String levelOfExperience,
+            MultipartFile projectUrl, String projectName, String projectAmount,
+            Date projectDeadline, Users users, String budgets, ProjectCategory projectCategory) {
+        log.info("Inside addProject method of ProjectServiceImpl (com.msp.assignment.serviceimpl)");
 
         try {
+//            // Convert projectCategory string to ProjectCategory object
+//            ProjectCategory category = projectCategoryRepo.findByCategory(projectCategory.trim());
+//            if (category == null) {
+//                throw new IllegalArgumentException("Invalid project category: " + projectCategory);
+//            }
+
+            // Create and set project details
+            ProjectsDetails projectsDetails = new ProjectsDetails();
+            projectsDetails.setScope(Scope.valueOf(scope.trim())); // Trim the input to remove any extra spaces
+            projectsDetails.setExperienceYear(ExperienceYear.valueOf(experienceYear.trim())); // Trim the input to remove any extra spaces
+            projectsDetails.setLevelOfExperience(LevelOfExperience.valueOf(levelOfExperience.trim())); // Trim the input to remove any extra spaces
+
+            Projects projects = new Projects();
+            projects.setUsers(users);
+            projects.setProjectName(projectName);
+            projects.setProjectAmount(projectAmount);
+            projects.setProjectDeadline(Date.valueOf(projectDeadline.toString()));
+            projects.setProjectCategory(projectCategory);
+            projects.setBudgets(Budgets.valueOf(budgets.trim()));
+
             // Save project first
-            Projects savedProject = projectRepo.save(project);
+            Projects savedProject = projectRepo.save(projects);
             log.info("Project saved with ID: {}", savedProject.getId());
 
             // Handle file upload
-            if (file != null && !file.isEmpty()) {
+            if (projectUrl != null && !projectUrl.isEmpty()) {
                 // Generate a unique file name and save the file
-                String filePath = fileUtils.generateFileName(file);  // Ensure fileUtils has the appropriate method for storing files
-                fileUtils.saveFile(file, filePath);  // Save the file to the desired location
-                details.setProjectUrl(filePath);  // Save the file path or URL to the database
+                String filePath = fileUtils.generateFileName(projectUrl);  // Ensure fileUtils has the appropriate method for storing files
+                fileUtils.saveFile(projectUrl, filePath);  // Save the file to the desired location
+                projectsDetails.setProjectUrl(filePath);  // Save the file path or URL to the database
                 log.info("File uploaded and saved to path: {}", filePath);
             }
 
             // Set default project status to PENDING
-            details.setProjectStatus(ProjectStatus.PENDING);
+            projectsDetails.setProjectStatus(ProjectStatus.PENDING);
 
             // Set the project reference in projectDetails
-            details.setProjects(savedProject);
+            projectsDetails.setProjects(savedProject);
 
             // Save project details
-            projectDetailsRepo.save(details);
+            projectDetailsRepo.save(projectsDetails);
             log.info("Project details saved for project ID: {}", savedProject.getId());
 
             return savedProject;
@@ -80,6 +100,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new RuntimeException("Error saving project or project details", e);
         }
     }
+
 
     @Override
     public List<ProjectsDetails> getProjectDetailsByUserId(Long userId) {
@@ -167,9 +188,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public void deleteProject(Long id) throws IOException {
-        projectRepo.deleteById(id);
         projectDetailsRepo.deleteById(id);
         Optional<ProjectsDetails> projectsDetails = projectDetailsRepo.findByProjectsId(id);
         fileUtils.deleteFileIfExists(projectsDetails.get().getProjectUrl());
+        projectRepo.deleteById(id);
+
     }
 }

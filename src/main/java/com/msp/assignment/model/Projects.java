@@ -1,7 +1,7 @@
 package com.msp.assignment.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.msp.assignment.model.Users;
+import com.msp.assignment.enumerated.Budgets;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -26,6 +26,10 @@ public class Projects {
     @Column(name = "project_deadline", nullable = false)
     private Date projectDeadline;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "budgets")
+    private Budgets budgets;
+
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
     private Timestamp createdAt;
 
@@ -35,4 +39,8 @@ public class Projects {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "users_id", referencedColumnName = "id")
     private Users users;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    private ProjectCategory projectCategory;
 }
