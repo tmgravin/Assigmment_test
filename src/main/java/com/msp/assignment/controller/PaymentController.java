@@ -27,9 +27,10 @@ public class PaymentController {
                                                 @RequestParam("paymentMethod") PaymentMethod paymentMethod,
                                                 @RequestParam("screenshotUrl") MultipartFile screenshotUrl,
                                                 @RequestParam("users") Users users,
-                                                @RequestParam("projects") Projects projects) {
+                                                @RequestParam("projects") Projects projects,
+                                                @RequestParam(name="id", required = false) Long id) {
         try {
-            Payments savePayment = paymentsService.savePayment(amount, paymentMethod, screenshotUrl, users, projects);
+            Payments savePayment = paymentsService.savePayment(amount, paymentMethod, screenshotUrl, users, projects, id);
             log.info("Payment added successfully" + savePayment.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(savePayment);
         } catch (Exception e) {

@@ -38,10 +38,20 @@ public class PaymentServiceImpl implements PaymentsService {
     private static final Logger log = LoggerFactory.getLogger(ProjectServiceImpl.class);
 
     @Override
-    public Payments savePayment(double amount, PaymentMethod paymentMethod, MultipartFile screenshotUrl, Users users, Projects projects) {
+    public Payments savePayment(double amount, PaymentMethod paymentMethod, MultipartFile screenshotUrl, Users users, Projects projects, Long id) {
         log.info("Inside savePayment method of PaymentServiceImpl");
 
         try {
+            // Create and save the payment record
+            Payments payments = new Payments();
+
+            PaymentScreenshot paymentScreenshot = new PaymentScreenshot();
+
+            if (id != null) {
+                payments = paymentRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Payment Not Found with id:" + id));
+                paymentScreenshot = paymentScreenshotRepo.findByPaymentsId(id).orElseThrow(() -> new ResourceNotFoundException("Payment ScreenShot Not Found with id:" + id));
+            }
+
             // Retrieve the project associated with the payment. Throw an exception if not found.
             Projects project = projectRepo.findById(projects.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Project Not Found"));
@@ -50,8 +60,7 @@ public class PaymentServiceImpl implements PaymentsService {
             Users user = usersRepository.findById(users.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-            // Create and save the payment record
-            Payments payments = new Payments();
+
             payments.setAmount(amount);
             payments.setPaymentMethod(paymentMethod);
             payments.setUsers(user);
@@ -66,7 +75,6 @@ public class PaymentServiceImpl implements PaymentsService {
                 String filePath = fileUtils.generateFileName(screenshotUrl);
                 fileUtils.saveFile(screenshotUrl, filePath);
 
-                PaymentScreenshot paymentScreenshot = new PaymentScreenshot();
                 paymentScreenshot.setScreenshotUrl(filePath);
                 paymentScreenshot.setPayments(savedPayment);
 
