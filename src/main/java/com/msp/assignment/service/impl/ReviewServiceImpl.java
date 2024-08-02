@@ -41,16 +41,15 @@ public class ReviewServiceImpl implements ReviewService
 	}
 	
 	@Override
-	public List<ReviewDto> getReviewOfProject(Long projectId)
+	public List<ReviewDto> getReviewOfProject(Long doerId)
 	{
-		List<Review> reviewsList = reviewRepo.findByProjects(projectId);
+		List<Review> reviewsList = reviewRepo.findByTeacher(doerId);
 		List<ReviewDto> dataSet = new ArrayList<ReviewDto>();
 		ReviewDto dto = new ReviewDto();
 		for(Review reviews: reviewsList)
 		{
-			reviews.setProjects(null);
 			reviews.setUsers(null);
-			dto.setProjectId(projectId);
+			dto.setDoerId(doerId);
 			dto.setReview(reviews);
 			dto.setLikesCount(likesRepo.countLikes(reviews.getId(), 'L'));
 			dto.setDisLikesCount(likesRepo.countLikes(reviews.getId(), 'D'));

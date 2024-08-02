@@ -22,6 +22,7 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
 
     @Autowired
     private UsersRepository usersRepository;
+
     @Autowired
     private ProjectRepo projectRepo;
 
