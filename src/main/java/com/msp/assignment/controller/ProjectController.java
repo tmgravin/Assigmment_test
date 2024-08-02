@@ -88,10 +88,11 @@ public class ProjectController {
             @RequestParam("projectDeadline") Date projectDeadline,
             @RequestParam("users") Users users,
             @RequestParam("budgets") String budgets,
-            @RequestParam("projectCategory") ProjectCategory projectCategory) {
+            @RequestParam("projectCategory") ProjectCategory projectCategory,
+            @RequestParam(name = "id", required = false) Long id) {
         log.info("Inside addProjectWithDetails method of ProjectController");
         try {
-            Projects savedProject = projectService.addProject(scope, experienceYear, levelOfExperience, projectUrl, projectName, projectAmount, projectDeadline, users, budgets, projectCategory);
+            Projects savedProject = projectService.addProject(scope, experienceYear, levelOfExperience, projectUrl, projectName, projectAmount, projectDeadline, users, budgets, projectCategory, id);
             log.info("Project created successfully with ID: {}", savedProject.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(savedProject);
         } catch (IllegalArgumentException e) {

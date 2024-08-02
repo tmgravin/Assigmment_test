@@ -1,21 +1,19 @@
 package com.msp.assignment.service.impl;
 
+import com.msp.assignment.enumerated.PaymentMethod;
 import com.msp.assignment.enumerated.PaymentStatus;
 import com.msp.assignment.exception.ResourceNotFoundException;
-import com.msp.assignment.model.CompletedProject;
-import com.msp.assignment.model.Payments;
-import com.msp.assignment.model.Projects;
-import com.msp.assignment.model.Users;
-import com.msp.assignment.repository.CompletedProjectRepo;
-import com.msp.assignment.repository.PaymentRepo;
-import com.msp.assignment.repository.ProjectRepo;
-import com.msp.assignment.repository.UsersRepository;
+import com.msp.assignment.model.*;
+import com.msp.assignment.repository.*;
 import com.msp.assignment.service.PaymentsService;
+import com.msp.assignment.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Service
@@ -31,63 +29,109 @@ public class PaymentServiceImpl implements PaymentsService {
     @Autowired
     private CompletedProjectRepo completedProjectRepo;
 
+    @Autowired
+    private FileUtils fileUtils;
+
+    @Autowired
+    private PaymentScreenshotRepo paymentScreenshotRepo;
+
     private static final Logger log = LoggerFactory.getLogger(ProjectServiceImpl.class);
 
     @Override
-    public Payments savePayment(Payments payments) {
+    public Payments savePayment(double amount, PaymentMethod paymentMethod, MultipartFile screenshotUrl, Users users, Projects projects) {
         log.info("Inside savePayment method of PaymentServiceImpl");
+
         try {
             // Retrieve the project associated with the payment. Throw an exception if not found.
-            Projects project = projectRepo.findById(payments.getProjects().getId())
+            Projects project = projectRepo.findById(projects.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Project Not Found"));
 
             // Retrieve the user making the payment. Throw an exception if not found.
-            Users user = usersRepository.findById(payments.getUsers().getId())
+            Users user = usersRepository.findById(users.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+            // Create and save the payment record
+            Payments payments = new Payments();
+            payments.setAmount(amount);
+            payments.setPaymentMethod(paymentMethod);
+            payments.setUsers(user);
+            payments.setProjects(project);
+            payments.setIsPaymentVerified("N");  // Initially not verified
+
+            // Save the payment record
+            Payments savedPayment = paymentRepo.save(payments);
+
+            // Handle screenshot URL if provided
+            if (screenshotUrl != null && !screenshotUrl.isEmpty()) {
+                String filePath = fileUtils.generateFileName(screenshotUrl);
+                fileUtils.saveFile(screenshotUrl, filePath);
+
+                PaymentScreenshot paymentScreenshot = new PaymentScreenshot();
+                paymentScreenshot.setScreenshotUrl(filePath);
+                paymentScreenshot.setPayments(savedPayment);
+
+                // Save the screenshot record
+                paymentScreenshotRepo.save(paymentScreenshot);
+                log.info("Screenshot uploaded and saved to path: {}", filePath);
+            }
+
+//            // Calculate the total amount paid for the project
+//            double totalPaid = paymentRepo.sumPaymentByProjectsId(projects.getId()) + amount;
+//
+//            // Convert the project amount to a double for comparison
+//            double projectAmount = Double.parseDouble(project.getProjectAmount());
+//
+//            // Update the payment status based on the total amount paid compared to the project amount
+//            if (totalPaid == projectAmount) {
+//                project.setPaymentStatus(PaymentStatus.COMPLETED);
+//            } else if (totalPaid > 0 && totalPaid < projectAmount) {
+//                project.setPaymentStatus(PaymentStatus.INCOMPLETE);
+//            } else {
+//                project.setPaymentStatus(PaymentStatus.PENDING);
+//            }
+
             // Calculate the total amount paid for the project by summing up all previous payments and the current payment amount.
-            double totalPaid = paymentRepo.sumPaymentByProjectsId(payments.getProjects().getId()) + payments.getAmount();
+            double totalPaid = paymentRepo.sumPaymentByProjectsId(projects.getId()) + amount;
 
             // Convert the project amount to a double for comparison.
             double projectAmount = Double.parseDouble(project.getProjectAmount());
 
-            // Retrieve the completed project record associated with the project.
-            CompletedProject completedProject = completedProjectRepo.findByProjectsId(payments.getProjects().getId());
-
             // Update the payment status based on the total amount paid compared to the project amount.
-            if (totalPaid == projectAmount) {
-                completedProject.setPaymentStatus(PaymentStatus.COMPLETED);
-            } else if (totalPaid > 0 && totalPaid < projectAmount) {
-                completedProject.setPaymentStatus(PaymentStatus.INCOMPLETE);
+            PaymentStatus paymentStatus;
+            if (totalPaid >= projectAmount) {
+                paymentStatus = PaymentStatus.COMPLETED;
+            } else if (totalPaid > 0) {
+                paymentStatus = PaymentStatus.INCOMPLETE;
             } else {
-                completedProject.setPaymentStatus(PaymentStatus.PENDING);
+                paymentStatus = PaymentStatus.PENDING;
             }
+            project.setPaymentStatus(paymentStatus);
 
-            // Save the updated completed project record.
-            completedProjectRepo.save(completedProject);
 
-            // Mark the payment as not verified initially.
-            payments.setIsPaymentVerified("N");
+            // Save the updated project record
+            projectRepo.save(project);
 
-            // Save the payment record in the database.
-            Payments savedPayment = paymentRepo.save(payments);
+            // Log the successful payment save operation
+            log.info("Payment saved successfully for project ID: {}", savedPayment.getProjects().getId());
 
-            // Log the successful payment save operation.
-            log.info("Payment saved successfully for project ID: {}", payments.getProjects().getId());
-
-            // Return the saved payment record.
+            // Return the saved payment record
             return savedPayment;
 
+        } catch (IOException e) {
+            // Log and throw the file handling error
+            log.error("Error handling file upload", e);
+            throw new RuntimeException("Error handling file upload", e);
         } catch (ResourceNotFoundException e) {
-            // Log the resource not found error and rethrow the exception.
+            // Log and rethrow the resource not found error
             log.error("Resource not found: ", e);
             throw e;
         } catch (Exception e) {
-            // Log any other errors that occur and throw a runtime exception.
+            // Log and throw any other errors
             log.error("Error saving payment: ", e);
             throw new RuntimeException("Error saving payment", e);
         }
     }
+
 
     @Override
     public Optional<Payments> getPayments(Long id) {

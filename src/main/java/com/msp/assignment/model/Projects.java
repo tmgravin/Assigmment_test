@@ -2,6 +2,7 @@ package com.msp.assignment.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.msp.assignment.enumerated.Budgets;
+import com.msp.assignment.enumerated.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -43,4 +44,9 @@ public class Projects {
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private ProjectCategory projectCategory;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="payment_status", nullable = false)
+    private PaymentStatus paymentStatus;
+
 }

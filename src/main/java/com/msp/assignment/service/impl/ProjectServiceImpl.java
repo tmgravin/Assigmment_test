@@ -1,6 +1,7 @@
 package com.msp.assignment.service.impl;
 
 import com.msp.assignment.enumerated.*;
+import com.msp.assignment.exception.ResourceNotFoundException;
 import com.msp.assignment.model.*;
 import com.msp.assignment.repository.ProjectApplicationRepo;
 import com.msp.assignment.repository.ProjectDetailsRepo;
@@ -43,30 +44,44 @@ public class ProjectServiceImpl implements ProjectService {
     public Projects addProject(
             String scope, String experienceYear, String levelOfExperience,
             MultipartFile projectUrl, String projectName, String projectAmount,
-            Date projectDeadline, Users users, String budgets, ProjectCategory projectCategory) {
+            Date projectDeadline, Users users, String budgets, ProjectCategory projectCategory, Long id) {
         log.info("Inside addProject method of ProjectServiceImpl (com.msp.assignment.serviceimpl)");
 
         try {
-//            // Convert projectCategory string to ProjectCategory object
-//            ProjectCategory category = projectCategoryRepo.findByCategory(projectCategory.trim());
-//            if (category == null) {
-//                throw new IllegalArgumentException("Invalid project category: " + projectCategory);
-//            }
-
             // Create and set project details
             ProjectsDetails projectsDetails = new ProjectsDetails();
+
+            Projects projects = new Projects();
+
+            // Check if the id is provided for updating an existing project
+            if (id != null) {
+                // Fetch the existing project
+                projects = projectRepo.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+                projectsDetails = projectDetailsRepo.findByProjectsId(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Project details not found for project id: " + id));
+                log.info("Updating project with ID: {}", id);
+            } else {
+                // Create a new project and project details
+                projects = new Projects();
+                projectsDetails = new ProjectsDetails();
+                log.info("Creating new project");
+            }
+
+
             projectsDetails.setScope(Scope.valueOf(scope.trim())); // Trim the input to remove any extra spaces
             projectsDetails.setExperienceYear(ExperienceYear.valueOf(experienceYear.trim())); // Trim the input to remove any extra spaces
             projectsDetails.setLevelOfExperience(LevelOfExperience.valueOf(levelOfExperience.trim())); // Trim the input to remove any extra spaces
 
-            Projects projects = new Projects();
+
+            projects.setId(id);
             projects.setUsers(users);
             projects.setProjectName(projectName);
             projects.setProjectAmount(projectAmount);
             projects.setProjectDeadline(Date.valueOf(projectDeadline.toString()));
             projects.setProjectCategory(projectCategory);
             projects.setBudgets(Budgets.valueOf(budgets.trim()));
-
+            projects.setPaymentStatus(PaymentStatus.PENDING);
             // Save project first
             Projects savedProject = projectRepo.save(projects);
             log.info("Project saved with ID: {}", savedProject.getId());

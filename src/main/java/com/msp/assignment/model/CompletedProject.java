@@ -19,16 +19,13 @@ public class CompletedProject {
     @JoinColumn(name = "project_id", nullable = false)
     private Projects project;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name="payment_status")
-    private PaymentStatus paymentStatus;
 
-    @Column(name = "File", columnDefinition = "TEXT")
-    private String File;
+    @Column(name = "file", columnDefinition = "TEXT", nullable = false)
+    private String file;
 
-    @Column(name = "completion_date", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "completion_date", nullable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp completionDate;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", nullable = false, insertable = false)
     private Timestamp updatedAt;
 }

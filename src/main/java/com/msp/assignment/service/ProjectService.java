@@ -14,7 +14,7 @@ public interface ProjectService {
     Projects addProject(
             String scope, String experienceYear, String levelOfExperience,
             MultipartFile projectUrl, String projectName, String projectAmount,
-            Date projectDeadline, Users users, String budgets, ProjectCategory projectCategory);
+            Date projectDeadline, Users users, String budgets, ProjectCategory projectCategory, Long id);
 
     List<ProjectsDetails> getProjectDetailsByUserId(Long userId);
     ProjectApplication applyForProject(Long projectId, Long doerId);

@@ -6,10 +6,11 @@ import lombok.Data;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "payments")
 @Data
+@Table(name = "payments")
 public class Payments {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "amount", columnDefinition = "DECIMAL(10,2)", nullable = false)
