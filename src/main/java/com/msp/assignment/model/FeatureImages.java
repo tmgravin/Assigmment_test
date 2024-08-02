@@ -13,7 +13,7 @@ public class FeatureImages {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "image_url", nullable = false,columnDefinition = "VARCHAR(255)")
+    @Column(name = "image_url", nullable = false, columnDefinition = "VARCHAR(255)")
     private String imageUrl;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)

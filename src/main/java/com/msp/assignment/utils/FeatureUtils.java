@@ -5,23 +5,34 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashSet;
 import java.util.Set;
 
 @Component
 public class FeatureUtils {
-    private static final String FILES = "./src/main/resources/static/featureImage";
+    private static final String FILES = "C:\\Users\\kshitiz\\Desktop\\MSP\\MSPAssignment\\.\\src\\main\\resources\\static\\featureImage";
     private final Set<String> allowedExtensions = new HashSet<>(Set.of(".jpg", ".jpeg", ".png"));
 
     public void saveFile(MultipartFile file, String fileName) throws IOException {
         Path uploads = Paths.get(FILES);
         if (!Files.exists(uploads)) {
             Files.createDirectories(uploads);
+            System.out.println("Directory created: " + uploads.toAbsolutePath());
         }
-        Files.copy(file.getInputStream(), uploads.resolve(fileName));
+        Path filePath = uploads.resolve(fileName);
+        try (InputStream inputStream = file.getInputStream()) {
+            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("File saved to: " + filePath.toAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("Failed to save file: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     public String generateFileName(MultipartFile file) {
@@ -40,6 +51,7 @@ public class FeatureUtils {
         Path filePath = Paths.get(FILES).resolve(fileName); // Path to the file
         if (Files.exists(filePath)) {
             Files.delete(filePath);
+            System.out.println("File deleted: " + filePath.toAbsolutePath());
         }
     }
 
