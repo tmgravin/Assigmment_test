@@ -26,9 +26,9 @@ public class CompletedProject {
     @Column(name = "File", columnDefinition = "TEXT")
     private String File;
 
-    @Column(name = "completion_date", nullable = false)
+    @Column(name = "completion_date", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp completionDate;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp updatedAt;
 }
