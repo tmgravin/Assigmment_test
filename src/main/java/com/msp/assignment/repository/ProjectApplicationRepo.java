@@ -21,5 +21,8 @@ public interface ProjectApplicationRepo extends JpaRepository<ProjectApplication
 
     @Query(value = "SELECT pa.id, pa.project_id, pa.doer_id,pa.status,pa.created_at, pa.updated_at  FROM project_applications pa where pa.doer_id=:doer", nativeQuery = true)
     List<ProjectApplication> findByUsersId(@Param("doer") Long doer);
+
+    @Query(value ="SELECT pa.id, pa.project_id, pa.doer_id,pa.status,pa.created_at, pa.updated_at  FROM project_applications pa where pa.project_id=:projects", nativeQuery = true)
+    ProjectApplication findApplicationByProjectsId(@Param("projects")Long projects);
 }
 
