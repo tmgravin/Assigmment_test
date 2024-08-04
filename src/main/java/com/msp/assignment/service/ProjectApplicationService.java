@@ -2,10 +2,12 @@ package com.msp.assignment.service;
 
 import com.msp.assignment.model.ProjectApplication;
 
-public interface ProjectApplicationService {
-    ProjectApplication applyForProject(Long projectId, Long doerId);
+import java.util.List;
 
-    ProjectApplication acceptProjectApplication(Long applicationId);
+public interface ProjectApplicationService {
 
     ProjectApplication getApplicationByProjectsId(Long id);
+
+    List<ProjectApplication> getApplicationsByUsersId(Long usersId);
+
 }

@@ -2,6 +2,7 @@ package com.msp.assignment.controller;
 
 import com.msp.assignment.message.ApiResponse;
 import com.msp.assignment.model.*;
+import com.msp.assignment.service.ProjectApplicationService;
 import com.msp.assignment.service.ProjectDetailsService;
 import com.msp.assignment.service.ProjectService;
 import com.msp.assignment.service.UsersService;
@@ -36,6 +37,9 @@ public class ProjectController {
 
     @Autowired
     private UsersService usersService;
+
+    @Autowired
+    private ProjectApplicationService projectApplicationService;
 
     private static final Logger log = LoggerFactory.getLogger(ProjectController.class);
 
@@ -141,7 +145,7 @@ public class ProjectController {
         log.info("Inside getApplicationsByDoerAndStatus method of ProjectController");
         try {
             // Fetch and return the applications
-            List<ProjectApplication> applications = projectService.getApplicationsByUsersId(doer);
+            List<ProjectApplication> applications = projectApplicationService.getApplicationsByUsersId(doer);
             log.info("Fetched {} applications for doer ID {}", applications.size(), doer);
             return ResponseEntity.status(HttpStatus.OK).body(applications);
         } catch (IllegalArgumentException e) {

@@ -177,24 +177,7 @@ public class ProjectServiceImpl implements ProjectService {
         return acceptedApplication;
     }
 
-    @Override
-    public List<ProjectApplication> getApplicationsByUsersId(Long usersId) {
-        log.info("Inside getApplicationsByDoer method of ProjectServiceImpl (com.msp.assignment.service.impl)");
 
-        Optional<Projects> projects = projectRepo.findByUsersId(usersId);
-
-        // Find all ProjectApplications by doer
-        List<ProjectApplication> allApplications = projectApplicationRepo.findByUsersId(usersId);
-        log.debug("Fetched {} applications for doer with ID {}", allApplications.size(), usersId.getClass());
-
-        // Filter the applications to include only those with ACCEPTED status
-        List<ProjectApplication> acceptedApplications = allApplications.stream()
-                .filter(application -> application.getStatus() == ApplicationStatus.ACCEPTED)
-                .collect(Collectors.toList());
-        log.debug("Filtered {} accepted applications for doer with ID {}", acceptedApplications.size(), usersId.getClass());
-
-        return acceptedApplications;
-    }
 
     @Override
     public Long countAllProjects() {
@@ -207,6 +190,5 @@ public class ProjectServiceImpl implements ProjectService {
         Optional<ProjectsDetails> projectsDetails = projectDetailsRepo.findByProjectsId(id);
         fileUtils.deleteFileIfExists(projectsDetails.get().getProjectUrl());
         projectRepo.deleteById(id);
-
     }
 }

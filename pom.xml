@@ -73,12 +73,21 @@
             <version>2.2.0</version>
         </dependency>
 
-        <!-- AWS SDK for Java - S3 Client. This library allows interacting with Amazon S3, including uploading, downloading, and deleting files. Check for the latest version for new features and bug fixes. -->
+        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.12.349</version>
+            <version>1.12.767</version>
         </dependency>
+
+        <!-- AWS SDK for Java 2.x S3 dependency -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>2.20.78</version> <!-- Check for the latest version -->
+        </dependency>
+
+
     </dependencies>
     <build>
         <plugins>
