@@ -43,23 +43,34 @@ public class PaymentServiceImpl implements PaymentsService {
 
         try {
             // Create and save the payment record
-            Payments payments = new Payments();
+            Payments payments;
+            PaymentScreenshot paymentScreenshot;
 
-            PaymentScreenshot paymentScreenshot = new PaymentScreenshot();
-
+            // Check if the id is provided for updating an existing payment
             if (id != null) {
-                payments = paymentRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Payment Not Found with id:" + id));
-                paymentScreenshot = paymentScreenshotRepo.findByPaymentsId(id).orElseThrow(() -> new ResourceNotFoundException("Payment ScreenShot Not Found with id:" + id));
+                payments = paymentRepo.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Payment Not Found with id: " + id));
+                paymentScreenshot = paymentScreenshotRepo.findByPaymentsId(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Payment Screenshot Not Found with id: " + id));
+            } else {
+                payments = new Payments();
+                paymentScreenshot = new PaymentScreenshot();
             }
 
-            // Retrieve the project associated with the payment. Throw an exception if not found.
+            // Retrieve the project associated with the payment
             Projects project = projectRepo.findById(projects.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Project Not Found"));
 
-            // Retrieve the user making the payment. Throw an exception if not found.
+            // Retrieve the user making the payment
             Users user = usersRepository.findById(users.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+            // Validate the payment amount
+            double projectAmount = Double.parseDouble(project.getProjectAmount());
+            if (amount > projectAmount && amount != 0) {
+                log.error("Please input a valid amount");
+                throw new IllegalArgumentException("Please input valid amount");
+            }
 
             payments.setAmount(amount);
             payments.setPaymentMethod(paymentMethod);
@@ -83,28 +94,10 @@ public class PaymentServiceImpl implements PaymentsService {
                 log.info("Screenshot uploaded and saved to path: {}", filePath);
             }
 
-//            // Calculate the total amount paid for the project
-//            double totalPaid = paymentRepo.sumPaymentByProjectsId(projects.getId()) + amount;
-//
-//            // Convert the project amount to a double for comparison
-//            double projectAmount = Double.parseDouble(project.getProjectAmount());
-//
-//            // Update the payment status based on the total amount paid compared to the project amount
-//            if (totalPaid == projectAmount) {
-//                project.setPaymentStatus(PaymentStatus.COMPLETED);
-//            } else if (totalPaid > 0 && totalPaid < projectAmount) {
-//                project.setPaymentStatus(PaymentStatus.INCOMPLETE);
-//            } else {
-//                project.setPaymentStatus(PaymentStatus.PENDING);
-//            }
-
-            // Calculate the total amount paid for the project by summing up all previous payments and the current payment amount.
+            // Calculate the total amount paid for the project
             double totalPaid = paymentRepo.sumPaymentByProjectsId(projects.getId()) + amount;
 
-            // Convert the project amount to a double for comparison.
-            double projectAmount = Double.parseDouble(project.getProjectAmount());
-
-            // Update the payment status based on the total amount paid compared to the project amount.
+            // Update the payment status based on the total amount paid compared to the project amount
             PaymentStatus paymentStatus;
             if (totalPaid >= projectAmount) {
                 paymentStatus = PaymentStatus.COMPLETED;
@@ -115,7 +108,6 @@ public class PaymentServiceImpl implements PaymentsService {
             }
             project.setPaymentStatus(paymentStatus);
 
-
             // Save the updated project record
             projectRepo.save(project);
 
@@ -125,14 +117,6 @@ public class PaymentServiceImpl implements PaymentsService {
             // Return the saved payment record
             return savedPayment;
 
-        } catch (IOException e) {
-            // Log and throw the file handling error
-            log.error("Error handling file upload", e);
-            throw new RuntimeException("Error handling file upload", e);
-        } catch (ResourceNotFoundException e) {
-            // Log and rethrow the resource not found error
-            log.error("Resource not found: ", e);
-            throw e;
         } catch (Exception e) {
             // Log and throw any other errors
             log.error("Error saving payment: ", e);
