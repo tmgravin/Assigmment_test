@@ -25,4 +25,5 @@ public class PaymentScreenshot {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "payment_id", referencedColumnName = "id")
     private Payments payments;
+
 }
