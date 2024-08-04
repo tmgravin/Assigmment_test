@@ -16,21 +16,23 @@ import java.io.IOException;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/competed/prject")
+@RequestMapping("/api/competed/project")
 public class CompletedProjectController {
     @Autowired
     private CompletedProjectService completedProjectService;
+
+
     private static final Logger log = LoggerFactory.getLogger(CompletedProjectController.class);
 
     @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CompletedProject> addCompleetedProject(@RequestParam("project") Projects project, @RequestParam("file") MultipartFile file) {
-        log.info("Inside addCompleetedProject method of CompletedProjectContrller");
+        log.info("Inside addCompleetedProject method of CompletedProjectController");
         try {
             CompletedProject completedProject = completedProjectService.addCompletedProject(project, file);
             log.info("Add Completed Project Successfully {}", completedProject.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(completedProject);
         } catch (Exception e) {
-            e.getLocalizedMessage();
+            log.error("Error while adding completed project: ", e); // Log the exception message
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
