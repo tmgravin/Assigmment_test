@@ -126,9 +126,22 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectApplication applyForProject(Long projectId, Long doerId) {
         log.info("Inside applyForProject method of ProjectServiceImpl (com.msp.assignment.service.impl)");
-        Projects project = projectRepo.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
-        Users doer = usersRepository.findById(doerId).orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Check if the project exists
+        Projects project = projectRepo.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        // Check if the doer exists
+        Users doer = usersRepository.findById(doerId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Check if the doer has already applied for the project
+        ProjectApplication existingApplication = projectApplicationRepo.findByProjectIdAndDoerId(projectId, doerId);
+        if (existingApplication != null) {
+            throw new RuntimeException("Doer has already applied for this project");
+        }
+
+        // Create a new application
         ProjectApplication application = new ProjectApplication();
         application.setProjects(project);
         application.setDoer(doer);
