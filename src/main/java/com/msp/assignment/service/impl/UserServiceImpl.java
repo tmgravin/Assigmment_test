@@ -6,6 +6,7 @@ import com.msp.assignment.model.Users;
 import com.msp.assignment.repository.UsersRepository;
 import com.msp.assignment.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import java.util.List;
@@ -16,11 +17,15 @@ public class UserServiceImpl implements UsersService {
 
     @Autowired
     private UsersRepository usersRepository;
+    
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public Users signup(Users user) {
         System.out.println(user.getPassword());
-        user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
+//        user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         if(user.getUserType() == null){
             user.setUserType(UserType.ADMIN);
         }

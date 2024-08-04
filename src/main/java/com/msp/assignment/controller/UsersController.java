@@ -19,47 +19,7 @@ public class UsersController {
     public UsersController(UsersService usersService) {
         this.usersService = usersService;
     }
-
-    //    @PostMapping("/signup")
-//    public Users signUp(@RequestBody Users user) {
-//        return usersService.signup(user);
-//    }
-//
-//    @PostMapping("/login")
-//    public Users login(@RequestBody Users user) {
-//        return usersService.login(user.getEmail(), user.getPassword());
-//    }
-//
-//    // Update an existing user
-//    @PutMapping("/{id}")
-//    public Users updateUser(@PathVariable(name = "id") Long id, @RequestBody Users user) {
-//        return usersService.updateUser(id, user);
-//    }
-//
-//    // Get a user by ID
-//    @GetMapping("/{id}")
-//    public Users getUserById(@PathVariable Long id) {
-//        return usersService.getUserById(id);
-//    }
-//
-//    // Get a user by email
-//    @GetMapping("/email")
-//    public Users getUserByEmail(@RequestParam String email) {
-//        return usersService.getUserByEmail(email);
-//    }
-//
-//    // Get all users
-//    @GetMapping("/allusers")
-//    public List<Users> getAllUsers() {
-//        return usersService.getAllUsers();
-//    }
-//
-//    // Delete a user by ID
-//    @DeleteMapping("/{id}")
-//    public void deleteUser(@PathVariable Long id) {
-//        usersService.deleteUser(id);
-//    }
-//}
+    
     @PostMapping("/signup")
     public ResponseEntity<Users> signUp(@Valid @RequestBody Users user) {
         Users createdUser = usersService.signup(user);
@@ -67,7 +27,9 @@ public class UsersController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Users> login(@RequestParam String email, @RequestParam String password) {
+    public ResponseEntity<Users> login(@RequestParam String email, @RequestParam String password)
+    {
+    	System.out.println("Inside login method of UsersController");
         Users user = usersService.login(email, password);
         if (user != null) {
             return new ResponseEntity<>(user, HttpStatus.OK);
