@@ -19,6 +19,8 @@ public class MspApplication {
 		System.setProperty("AWS_SECRET_ACCESS_KEY", dotenv.get("AWS_SECRET_ACCESS_KEY"));
 		System.setProperty("AWS_REGION", dotenv.get("AWS_REGION"));
 		System.setProperty("S3_BUCKET_NAME", dotenv.get("S3_BUCKET_NAME"));
+		System.setProperty("S3_BASE_URL", dotenv.get("S3_BASE_URL"));
+
 
 		// Set Database Resource environment variables as system properties
 		System.setProperty("DB_URL", dotenv.get("DB_URL"));

@@ -7,6 +7,7 @@ import com.msp.assignment.repository.FeatureImagesRepo;
 import com.msp.assignment.service.FeatureImageService;
 import com.msp.assignment.utils.FeatureUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +22,9 @@ public class FeatureImageServiceImpl implements FeatureImageService {
 
     @Autowired
     private FeatureUtils featureUtils;
+
+    @Value("${S3_BASE_URL}")
+    private String s3BaseUrl;
 
     @Override
     public Object getImages(Optional<Long> id) {
@@ -52,7 +56,7 @@ public class FeatureImageServiceImpl implements FeatureImageService {
                 String fileName = featureUtils.generateFileName(file);
                 featureUtils.deleteFileIfExists(fileName);
                 featureUtils.saveFile(file, fileName);
-                featureImages.setImageUrl(fileName);
+                featureImages.setImageUrl(s3BaseUrl+fileName);
 
                 featureImagesRepo.save(featureImages);
                 return "Feature image uploaded successfully: " + fileName;

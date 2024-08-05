@@ -12,6 +12,7 @@ import com.msp.assignment.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,6 +40,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Autowired
     private ProjectApplicationRepo projectApplicationRepo;
+
+
+    @Value("${S3_BASE_URL}")
+    private String s3BaseUrl;
 
     @Override
     public Projects addProject(
@@ -91,7 +96,7 @@ public class ProjectServiceImpl implements ProjectService {
                 // Generate a unique file name and save the file
                 String filePath = fileUtils.generateFileName(projectUrl);  // Ensure fileUtils has the appropriate method for storing files
                 fileUtils.saveFile(projectUrl, filePath);  // Save the file to the desired location
-                projectsDetails.setProjectUrl(filePath);  // Save the file path or URL to the database
+                projectsDetails.setProjectUrl(s3BaseUrl + filePath);  // Save the file path or URL to the database
                 log.info("File uploaded and saved to path: {}", filePath);
             }
 
@@ -155,7 +160,6 @@ public class ProjectServiceImpl implements ProjectService {
         log.info("Inside acceptProjectApplication method of ProjectServiceImpl (com.msp.assignment.service.impl)");
 
 
-
         // Find the application to be accepted
         ProjectApplication acceptedApplication = projectApplicationRepo.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
@@ -189,7 +193,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         return acceptedApplication;
     }
-
 
 
     @Override
