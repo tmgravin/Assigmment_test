@@ -34,8 +34,6 @@ public class MspApplication {
 		System.setProperty("SWAGAR_PATH", dotenv.get("SWAGAR_PATH"));
 		System.setProperty("SWAGAR_DOCS", dotenv.get("SWAGAR_DOCS"));
 
-
-
 		SpringApplication.run(MspApplication.class, args);
 	}
 

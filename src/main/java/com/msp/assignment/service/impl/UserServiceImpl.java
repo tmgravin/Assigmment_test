@@ -263,7 +263,6 @@ public class UserServiceImpl implements UsersService {
     @Transactional
     public void changePassword(UsersDto usersDto) {
         try {
-
             Users users = userRepository.findById(usersDto.getId()).orElseThrow(() -> new ResourceNotFoundException("User doesn't exist with this Id."));
             if(!DigestUtils.md5DigestAsHex(usersDto.getOldPassword().getBytes()).equals(users.getPassword())){
                 throw new IllegalArgumentException("Old password is incorrect.");

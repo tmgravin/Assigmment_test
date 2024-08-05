@@ -18,7 +18,6 @@ import java.util.UUID;
 
 @Component
 @Data
-@Slf4j
 public class FileUtils {
 
     private final S3Client s3Client;
@@ -38,9 +37,7 @@ public class FileUtils {
                             .key(fileName)
                             .build(),
                     RequestBody.fromInputStream(inputStream, file.getSize()));
-            log.info("File uploaded to S3: " + fileName);
         } catch (S3Exception e) {
-            log.error("Failed to upload file to S3", e);
             throw new IOException("Failed to upload file to S3", e);
         }
     }
@@ -61,12 +58,9 @@ public class FileUtils {
                         .bucket(bucketName)
                         .key(fileName)
                         .build());
-                log.info("Deleted file from S3: " + fileName);
             } else {
-                log.error("File not found in S3 for deletion: " + fileName);
             }
         } catch (S3Exception e) {
-            log.error("Failed to delete file from S3", e);
         }
     }
 

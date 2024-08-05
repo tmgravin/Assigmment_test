@@ -28,10 +28,10 @@ public class FilesController {
         logger.info("No key provided, listing all files in the bucket");
         try {
             List<String> keys = s3Service.listAllKeys();
-            logger.info("Successfully listed all files");
+            logger.info("Successfully listed all files.");
             return ResponseEntity.ok(keys);
         } catch (Exception e) {
-            logger.error("Failed to list all files", e);
+            logger.error("Failed to list all files.", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to list files");
         }
     }

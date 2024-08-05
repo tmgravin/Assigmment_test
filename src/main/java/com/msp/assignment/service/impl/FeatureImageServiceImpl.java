@@ -46,12 +46,13 @@ public class FeatureImageServiceImpl implements FeatureImageService {
     }
 
     @Override
-    public String addImage(FeatureImages featureImages, MultipartFile file) {
+    public String addImage( MultipartFile file) {
         try {
             if (file != null && !file.isEmpty()) {
+                FeatureImages featureImages = new FeatureImages();
                 String fileName = fileUtils.generateFileName(file);
-                fileUtils.deleteFileIfExists(fileName);
                 fileUtils.saveFile(file, fileName);
+                fileUtils.deleteFileIfExists(fileName);
                 featureImages.setImageUrl(fileName);
 
                 featureImagesRepo.save(featureImages);
