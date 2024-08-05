@@ -126,9 +126,22 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectApplication applyForProject(Long projectId, Long doerId) {
         log.info("Inside applyForProject method of ProjectServiceImpl (com.msp.assignment.service.impl)");
-        Projects project = projectRepo.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
-        Users doer = usersRepository.findById(doerId).orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Check if the project exists
+        Projects project = projectRepo.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        // Check if the doer exists
+        Users doer = usersRepository.findById(doerId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Check if the doer has already applied for the project
+        ProjectApplication existingApplication = projectApplicationRepo.findByProjectIdAndDoerId(projectId, doerId);
+        if (existingApplication != null) {
+            throw new RuntimeException("Doer has already applied for this project");
+        }
+
+        // Create a new application
         ProjectApplication application = new ProjectApplication();
         application.setProjects(project);
         application.setDoer(doer);
@@ -177,24 +190,7 @@ public class ProjectServiceImpl implements ProjectService {
         return acceptedApplication;
     }
 
-    @Override
-    public List<ProjectApplication> getApplicationsByUsersId(Long usersId) {
-        log.info("Inside getApplicationsByDoer method of ProjectServiceImpl (com.msp.assignment.service.impl)");
 
-        Optional<Projects> projects = projectRepo.findByUsersId(usersId);
-
-        // Find all ProjectApplications by doer
-        List<ProjectApplication> allApplications = projectApplicationRepo.findByUsersId(usersId);
-        log.debug("Fetched {} applications for doer with ID {}", allApplications.size(), usersId.getClass());
-
-        // Filter the applications to include only those with ACCEPTED status
-        List<ProjectApplication> acceptedApplications = allApplications.stream()
-                .filter(application -> application.getStatus() == ApplicationStatus.ACCEPTED)
-                .collect(Collectors.toList());
-        log.debug("Filtered {} accepted applications for doer with ID {}", acceptedApplications.size(), usersId.getClass());
-
-        return acceptedApplications;
-    }
 
     @Override
     public Long countAllProjects() {
@@ -207,6 +203,5 @@ public class ProjectServiceImpl implements ProjectService {
         Optional<ProjectsDetails> projectsDetails = projectDetailsRepo.findByProjectsId(id);
         fileUtils.deleteFileIfExists(projectsDetails.get().getProjectUrl());
         projectRepo.deleteById(id);
-
     }
 }

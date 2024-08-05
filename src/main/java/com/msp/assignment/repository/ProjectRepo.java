@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface ProjectRepo extends JpaRepository<Projects, Long> {
-    Optional<Projects> findByUsersId(Long doer);
+    List<Projects> findByUsersId(Long doer);
 
     @Query("SELECT COUNT(p) FROM Projects p")
     Long countAllProjects();

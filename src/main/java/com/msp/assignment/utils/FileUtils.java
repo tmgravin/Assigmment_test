@@ -1,59 +1,77 @@
 package com.msp.assignment.utils;
 
+import lombok.Data;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.UUID;
 
 @Component
+@Data
 @Slf4j
 public class FileUtils {
 
-    // Logger instance for logging information and errors
-    // Directory where documents will be stored
-    private static final String FILES = "./src/main/resources/static/files";
+    private final S3Client s3Client;
 
+    @Value("${s3.bucket.name}")
+    private String bucketName;
 
-    //     * Saves a file to the specified directory.
+    public FileUtils(S3Client s3Client) {
+        this.s3Client = s3Client;
+    }
+
+    // Save a file to the S3 bucket.
     public void saveFile(MultipartFile file, String fileName) throws IOException {
-        Path uploads = Paths.get(FILES); // Path to the documents directory
-        if (!Files.exists(uploads)) {
-            Files.createDirectories(uploads); // Create the directory if it doesn't exist
+        try (InputStream inputStream = file.getInputStream()) {
+            s3Client.putObject(PutObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(fileName)
+                            .build(),
+                    RequestBody.fromInputStream(inputStream, file.getSize()));
+            log.info("File uploaded to S3: " + fileName);
+        } catch (S3Exception e) {
+            log.error("Failed to upload file to S3", e);
+            throw new IOException("Failed to upload file to S3", e);
         }
-        Files.copy(file.getInputStream(), uploads.resolve(fileName)); // Copy the file to the target location
     }
 
-
-    //     * Generates a unique filename using a truncated UUID and the original file extension.
+    // Generates a unique filename using a truncated UUID and the original file extension.
     public String generateFileName(MultipartFile file) {
-        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename()); // Clean the original filename
-        String extension = getFileExtension(originalFilename); // Extract the file extension
-        String uuidPart = UUID.randomUUID().toString().substring(0, 20); // Generate a truncated UUID
-        String generatedFileName = uuidPart + "." + extension; // Concatenate UUID part with the extension
-        return generatedFileName;
+        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+        String extension = getFileExtension(originalFilename);
+        String uuidPart = UUID.randomUUID().toString().substring(0, 20);
+        return uuidPart + "." + extension;
     }
 
-
-    //     * Deletes a file if it exists in the directory.
-    public void deleteFileIfExists(String fileName) throws IOException {
-        Path filePath = Paths.get(FILES).resolve(fileName); // Path to the file
-        if (Files.exists(filePath)) {
-            Files.delete(filePath); // Delete the file if it exists
-            log.info("Deleted file: " + fileName); // Log the deletion
-        } else {
-            log.error("File not found for deletion: " + fileName); // Log a warning if the file doesn't exist
+    // Delete a file from the S3 bucket.
+    public void deleteFileIfExists(String fileName) {
+        try {
+            if (s3Client.headObject(r -> r.bucket(bucketName).key(fileName)).sdkHttpResponse().isSuccessful()) {
+                s3Client.deleteObject(DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(fileName)
+                        .build());
+                log.info("Deleted file from S3: " + fileName);
+            } else {
+                log.error("File not found in S3 for deletion: " + fileName);
+            }
+        } catch (S3Exception e) {
+            log.error("Failed to delete file from S3", e);
         }
     }
 
-
-    //     * Extracts the file extension from the filename.
+    // Extracts the file extension from the filename.
     private String getFileExtension(String filename) {
-        return filename.substring(filename.lastIndexOf(".") + 1); // Extract and return the extension
+        return filename.substring(filename.lastIndexOf(".") + 1);
     }
 }

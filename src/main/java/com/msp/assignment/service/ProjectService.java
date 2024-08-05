@@ -21,9 +21,6 @@ public interface ProjectService {
 
     ProjectApplication acceptProjectApplication(Long applicationId);
 
-    List<ProjectApplication> getApplicationsByUsersId(Long usersId);
-
-
     Long countAllProjects();
 
     void deleteProject(Long id) throws IOException;
