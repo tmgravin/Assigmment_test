@@ -26,6 +26,15 @@ public class MspApplication {
 		System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
 		System.setProperty("DB_DRIVER", dotenv.get("DB_DRIVER"));
 
+		// Set Email Resource environment variables as system properties
+		System.setProperty("EMAIL_USERNAME", dotenv.get("EMAIL_USERNAME"));
+		System.setProperty("EMAIL_PASSWORD", dotenv.get("EMAIL_PASSWORD"));
+
+		// Set Swagar Resource environment variables as system properties
+		System.setProperty("SWAGAR_PATH", dotenv.get("SWAGAR_PATH"));
+		System.setProperty("SWAGAR_DOCS", dotenv.get("SWAGAR_DOCS"));
+
+
 
 		SpringApplication.run(MspApplication.class, args);
 	}
