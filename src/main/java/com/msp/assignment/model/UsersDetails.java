@@ -27,15 +27,9 @@ public class UsersDetails {
     @Column(name = "upload_photo", nullable = false, columnDefinition = "TEXT")
     private String uploadPhoto;
 
-    @Column(name = "is_emailVerified", nullable = false, columnDefinition = "CHAR(1) default 'N'")
-    private char isEmailVerified;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "work_type", nullable = false)
     private WorkType workType;
-
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false, insertable = false)
-    private Timestamp createdAt;
 
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false)
     private Timestamp updatedAt;

@@ -8,12 +8,7 @@ import lombok.Data;
 public class ReviewDto
 {	
 	private Review review;
-	private Long projectId;
+	private Long doerId;
 	private Integer likesCount;
 	private Integer disLikesCount;
-	
-	public void setReviewData(Review review)
-	{
-		this.review = review;
-	}
 }

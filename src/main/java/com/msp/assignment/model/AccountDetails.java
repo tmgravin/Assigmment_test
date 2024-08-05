@@ -38,12 +38,6 @@ public class AccountDetails {
     private Timestamp updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private Users users;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_id", referencedColumnName = "id")
-    private Payments payments;
-
-
 }

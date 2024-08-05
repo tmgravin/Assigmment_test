@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <title>Error</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.8;
+            margin: 0 auto;
+            max-width: 80%;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .verification-error {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .verification-error {
+            font-size: 80px;
+            color: #ce160c;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Error</h2>
+    <div class="verification-error">
+    <p th:text="${error}"></p>
+    <i class="fa-solid fa-circle-exclamation"></i>
+</div>
+
+    <p class="footer">Please try again later.<br>MSP Assignmet</p>
+</div>
+</body>
+</html>
