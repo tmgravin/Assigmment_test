@@ -66,7 +66,7 @@ public class UserServiceImpl implements UsersService {
             }
 
             String token = UUID.randomUUID().toString();
-            String verificationLink = "http://localhost:8080/api/users/verifyEmail?token=" + token;
+            String verificationLink = "https://mspacademy.co/api/users/verifyEmail?token=" + token;
 
             UsersVerification tokenEntity = new UsersVerification();
             tokenEntity.setToken(token);

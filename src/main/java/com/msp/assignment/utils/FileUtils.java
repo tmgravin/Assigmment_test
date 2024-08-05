@@ -44,10 +44,10 @@ public class FileUtils {
 
     // Generates a unique filename using a truncated UUID and the original file extension.
     public String generateFileName(MultipartFile file) {
-        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename()); // Clean the original filename
-        String extension = getFileExtension(originalFilename); // Extract the file extension
-        String uuidPart = UUID.randomUUID().toString().substring(0, 20); // Generate a truncated UUID
-        return uuidPart + "." + extension; // Concatenate UUID part with the extension
+        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+        String extension = getFileExtension(originalFilename);
+        String uuidPart = UUID.randomUUID().toString().substring(0, 20);
+        return uuidPart + "." + extension;
     }
 
     // Delete a file from the S3 bucket.
@@ -69,6 +69,6 @@ public class FileUtils {
 
     // Extracts the file extension from the filename.
     private String getFileExtension(String filename) {
-        return filename.substring(filename.lastIndexOf(".") + 1); // Extract and return the extension
+        return filename.substring(filename.lastIndexOf(".") + 1);
     }
 }

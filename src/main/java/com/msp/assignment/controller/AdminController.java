@@ -62,4 +62,7 @@ public class AdminController {
         }
     }
 
+    //Api for making the project visible
+
+
 }
