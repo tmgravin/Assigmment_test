@@ -31,7 +31,7 @@ public class CustomJsonAuthenticationFilter extends AbstractAuthenticationProces
         Map<String, String> credentials = objectMapper.readValue(request.getInputStream(), HashMap.class);
         String username = credentials.get("email");
         String password = credentials.get("password");
-        System.out.println("Inside attemptAuthentication " + username + " :: " + password);
+//        System.out.println("Inside attemptAuthentication " + username + " :: " + password);
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
 

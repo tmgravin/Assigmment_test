@@ -13,7 +13,7 @@ public class JwtUtil {
 
     public String generateToken(String username)
     {
-    	System.out.println("here " + (System.currentTimeMillis() + 1000 * 60 * 60 * 10));
+    	System.out.println("token " + (System.currentTimeMillis() + 1000 * 60 * 60 * 10));
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())

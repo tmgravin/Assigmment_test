@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.msp.assignment.model.Users;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/security")
@@ -29,15 +34,23 @@ public class SecurityController
     private static final Logger log = LoggerFactory.getLogger(SecurityController.class);
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Users authRequest)
+    public ResponseEntity<?> login(@RequestBody Users authRequest, HttpServletRequest request, HttpServletResponse response)
     {
+    	
     	log.info("INSIDE LOGIN METHOD OF SecurityController: " + authRequest.getEmail());
         try
         {
         	Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword())
             );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            securityContext.setAuthentication(authentication);
+            
+//            Create a new session and add the security context.
+            HttpSession session = request.getSession(true);
+            session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+
 //            return ResponseEntity.ok().body(jwtUtil.generateToken(authRequest.getEmail()));
             return ResponseEntity.ok().body(LoginUtils.geUserInfo());
         }
@@ -72,8 +85,8 @@ public class SecurityController
 	@GetMapping("/user")
 	public ResponseEntity<?> user()
 	{
-		log.info("INSIDE USER METHOD OF SecurityController: ");
-//		return ResponseEntity.ok().body(LoginUtils.geUserInfo());
-		return null;
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		log.info("INSIDE USER METHOD OF SecurityController: " + authentication.getName());
+		return ResponseEntity.ok().body(LoginUtils.geUserInfo());
 	}
 }

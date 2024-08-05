@@ -1,5 +1,6 @@
 package com.msp.assignment.controller;
 
+import com.msp.assignment.config.LoginUtils;
 import com.msp.assignment.model.Users;
 import com.msp.assignment.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,14 @@ public class UsersController {
         usersService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+    
+    // added by ram kumar for test
+    @GetMapping("/user")
+	public ResponseEntity<?> user()
+	{
+    	System.out.println("INSIDE USER METHOD OF usersController: ");
+		return ResponseEntity.ok().body(LoginUtils.geUserInfo());
+	}
 }
 
 

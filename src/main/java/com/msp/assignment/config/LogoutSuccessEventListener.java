@@ -10,8 +10,8 @@ public class LogoutSuccessEventListener implements ApplicationListener<LogoutSuc
     @Override
     public void onApplicationEvent(LogoutSuccessEvent event)
     {
-        String email = event.getAuthentication().getName();
         // Perform custom logic here, such as logging or removing user details
-        System.out.println("(LogoutSuccessEventListener) User logged out: " + email);
+    	String email = event.getAuthentication().getName();
+//        System.out.println("(LogoutSuccessEventListener) User logged out: " + email);
     }
 }
