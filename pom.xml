@@ -86,6 +86,12 @@
             <artifactId>s3</artifactId>
             <version>2.20.78</version> <!-- Check for the latest version -->
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.github.cdimascio/dotenv-java -->
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-java</artifactId>
+            <version>3.0.1</version>
+        </dependency>
 
 
     </dependencies>
