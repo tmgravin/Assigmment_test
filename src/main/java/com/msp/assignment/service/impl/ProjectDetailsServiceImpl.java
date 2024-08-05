@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ProjectDetailsServiceImpl implements ProjectDetailsService {
@@ -22,6 +21,7 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
 
     @Autowired
     private UsersRepository usersRepository;
+
     @Autowired
     private ProjectRepo projectRepo;
 

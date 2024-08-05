@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Optional;
 
-
 @Repository
 public interface ProjectRepo extends JpaRepository<Projects, Long> {
     List<Projects> findByUsersId(Long doer);

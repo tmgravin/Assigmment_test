@@ -1,5 +1,6 @@
 package com.msp.assignment.controller;
 
+import com.msp.assignment.dto.UsersDto;
 import com.msp.assignment.exception.EmailRelatedException;
 import com.msp.assignment.exception.ResourceNotFoundException;
 import com.msp.assignment.model.ForgetPassword;
@@ -116,7 +117,7 @@ public class UsersController {
     //Api for updating user
     @PutMapping("/updateUser/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody Users user) {
-        log.info("Inside updateUser method of UserController (authentication)");
+        log.info("Inside updateUser method of UserController.");
         try {
             Users updatedUser = userService.updateUser(id, user);
             return ResponseEntity.ok(updatedUser);
@@ -130,6 +131,7 @@ public class UsersController {
     //Api for deleting user
     @DeleteMapping("deleteUser/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        log.info("Inside deleteUser method of UserController.");
         try {
             userService.deleteUser(id);
             return ResponseEntity.noContent().build();
@@ -143,7 +145,7 @@ public class UsersController {
     //Api for forget password and sending reset code
     @PostMapping("/forgetPassword")
     public ResponseEntity<String> forgetPassword(@RequestBody Users users) {
-        log.info("Inside forgetPassword method of UserController (authentication)");
+        log.info("Inside forgetPassword method of UserController.");
         try {
             userService.forgetPassword(users.getEmail());
             return ResponseEntity.status(HttpStatus.OK).body("Password verification code is send to your email.");
@@ -159,7 +161,7 @@ public class UsersController {
     //Api for verifying password reset code
     @PostMapping("/verifyResetCode")
     public ResponseEntity<String> verifyPasswordResetCode(@RequestBody ForgetPassword forgetPassword) {
-        log.info("Inside verifyPasswordResetCode method of UserController (authentication)");
+        log.info("Inside verifyPasswordResetCode method of UserController.");
         try {
             userService.verifyPasswordResetCode(forgetPassword.getCode());
             return ResponseEntity.status(HttpStatus.OK).body("Password Reset code verified successfully.");
@@ -176,10 +178,26 @@ public class UsersController {
     //Api for resetting password
     @PostMapping("/resetPassword")
     public ResponseEntity<String> resetPassword(@RequestBody Users user) {
-        log.info("Inside resetPassword method of UserController (authentication)");
+        log.info("Inside resetPassword method of UserController.");
         try {
             userService.resetPassword(user.getPassword());
             return ResponseEntity.status(HttpStatus.OK).body("Password reset successfully.");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    //Api for changing password
+    @PostMapping("/changePassword")
+    public ResponseEntity<String> changePassword(@RequestBody UsersDto usersDto){
+        log.info("Inside changePassword method of UserController.");
+        try{
+            userService.changePassword(usersDto);
+            return ResponseEntity.status(HttpStatus.OK).body("Password changed successfully.");
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IllegalStateException e) {

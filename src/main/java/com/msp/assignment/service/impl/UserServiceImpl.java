@@ -1,7 +1,6 @@
 package com.msp.assignment.service.impl;
 
-import com.msp.assignment.enumerated.LoginType;
-import com.msp.assignment.enumerated.UserType;
+import com.msp.assignment.dto.UsersDto;
 import com.msp.assignment.exception.EmailRelatedException;
 import com.msp.assignment.exception.ResourceNotFoundException;
 import com.msp.assignment.model.ForgetPassword;
@@ -19,7 +18,6 @@ import org.springframework.util.DigestUtils;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -157,9 +155,9 @@ public class UserServiceImpl implements UsersService {
         try {
             Users existingUser = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
             existingUser.setName(user.getName());
-            existingUser.setEmail(user.getEmail());
+            existingUser.setPhone(user.getPhone());
+            existingUser.setAddress(user.getAddress());
 
-            existingUser.setUpdatedAt(Timestamp.from(Instant.now()));
             return userRepository.save(existingUser);
         } catch (ResourceNotFoundException e) {
             throw e;
@@ -245,15 +243,33 @@ public class UserServiceImpl implements UsersService {
 
     @Override
     @Transactional
-    public void resetPassword(String newPassword) {
+    public void resetPassword(String Password) {
         try {
             ForgetPassword forgetPassword = forgetPasswordRepo.findByIsVerified("Y").orElseThrow(() -> new ResourceNotFoundException("Password reset code is not verified."));
 
             Users users = userRepository.findById(forgetPassword.getUsers().getId()).orElseThrow(() -> new ResourceNotFoundException("User doesn't exist with this Id."));
-            users.setPassword(DigestUtils.md5DigestAsHex(newPassword.getBytes()));
+            users.setPassword(DigestUtils.md5DigestAsHex(Password.getBytes()));
             userRepository.save(users);
 
             forgetPasswordRepo.deleteByUsersId(forgetPassword.getUsers().getId());
+        } catch (IllegalArgumentException | ResourceNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal server error: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(UsersDto usersDto) {
+        try {
+
+            Users users = userRepository.findById(usersDto.getId()).orElseThrow(() -> new ResourceNotFoundException("User doesn't exist with this Id."));
+            if(!DigestUtils.md5DigestAsHex(usersDto.getOldPassword().getBytes()).equals(users.getPassword())){
+                throw new IllegalArgumentException("Old password is incorrect.");
+            }
+            users.setPassword(DigestUtils.md5DigestAsHex(usersDto.newPassword.getBytes()));
+            userRepository.save(users);
         } catch (IllegalArgumentException | ResourceNotFoundException e) {
             throw e;
         } catch (Exception e) {

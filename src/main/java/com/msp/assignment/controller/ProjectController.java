@@ -1,6 +1,6 @@
 package com.msp.assignment.controller;
 
-import com.msp.assignment.message.ApiResponse;
+import com.msp.assignment.dto.ResponseDto;
 import com.msp.assignment.model.*;
 import com.msp.assignment.service.ProjectApplicationService;
 import com.msp.assignment.service.ProjectDetailsService;
@@ -116,10 +116,10 @@ public class ProjectController {
         try {
             ProjectApplication application = projectService.applyForProject(projectId, doerId);
             log.info("Application created successfully with ID: {}", application.getId());
-            ApiResponse<ProjectApplication> response = new ApiResponse<>(true, "Applied Successfully", null);
+            ResponseDto<ProjectApplication> response = new ResponseDto<>(true, "Applied Successfully", null);
             return ResponseEntity.status(HttpStatus.CREATED).body(application);
         } catch (Exception e) {
-            ApiResponse<ProjectApplication> response = new ApiResponse<>(false, "Applied Failed", null);
+            ResponseDto<ProjectApplication> response = new ResponseDto<>(false, "Applied Failed", null);
             log.error("Error applying for project", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }

@@ -12,7 +12,7 @@ import com.msp.assignment.model.Review;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long>
 {
-	@Query(value="select id, rating, comment, created_at, users_id, project_id from reviews r "
-			+ "where r.project_id = :projectId", nativeQuery = true)
-	List<Review> findByProjects(@Param("projectId") Long projectId);
+	@Query(value="select id, rating, comment, created_at, users_id, doer_id from reviews r "
+			+ "where r.doer_id = :doerId", nativeQuery = true)
+	List<Review> findByTeacher(@Param("doerId") Long doerId);
 }

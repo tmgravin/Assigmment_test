@@ -27,7 +27,6 @@ public class Review {
     private Users users;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "project_id", referencedColumnName = "id")
-    private Projects projects;
-
+    @JoinColumn(name = "doer_id", referencedColumnName = "id")
+    private Users doer;
 }
