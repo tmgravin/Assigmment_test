@@ -73,6 +73,33 @@ public class MailUtils {
         } catch (Exception e) {
             throw new RuntimeException("Internal server error:" + e.getMessage(), e);
         }
+    }
 
+    //Mail configuration for project notification
+    public void projectNotification(String toEmail, String recipientName) throws MessagingException {
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+
+            String subject = "Project Updates.";
+
+            //Load html templates
+            ClassPathResource htmlFile = new ClassPathResource("templates/Assignment_verifyCode.html");
+            String htmlContent = StreamUtils.copyToString(htmlFile.getInputStream(), StandardCharsets.UTF_8);
+
+//            htmlContent = htmlContent.replace("[code]", String.valueOf(verificationCode));
+            htmlContent = htmlContent.replace("[name]", recipientName);
+
+            helper.setFrom("MSP Academy <mspacademy0@gmail.com>");
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(mimeMessage);
+        } catch (EmailRelatedException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal server error:" + e.getMessage(), e);
+        }
     }
 }
