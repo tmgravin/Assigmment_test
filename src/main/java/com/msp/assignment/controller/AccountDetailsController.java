@@ -1,5 +1,6 @@
 package com.msp.assignment.controller;
 
+import com.msp.assignment.exception.ResourceConflictException;
 import com.msp.assignment.exception.ResourceNotFoundException;
 import com.msp.assignment.model.AccountDetails;
 import com.msp.assignment.service.AccountDetailsService;
@@ -10,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/api/account")
@@ -18,13 +21,13 @@ public class AccountDetailsController {
     @Autowired
     private AccountDetailsService accountDetailsService;
 
-    //Api for getting bank details
+    //Api for getting bank details by userId and all bank details
     @GetMapping("/")
-    public ResponseEntity<?> getAccountDetails(@RequestParam(name = "id", required = false) Long id){
+    public ResponseEntity<?> getAccountDetails(@RequestParam(name = "userId", required = false) Long userId){
         log.info("Inside getAccountDetails method of AccountDetailsController.");
         try{
-            Object accountDetails = accountDetailsService.getAccountDetails(id);
-            return ResponseEntity.ok(accountDetails);
+            List<AccountDetails> accountDetails = accountDetailsService.getAccountDetails(userId);
+                return ResponseEntity.ok(accountDetails);
         }catch (ResourceNotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }catch (Exception e){
@@ -41,6 +44,8 @@ public class AccountDetailsController {
             return ResponseEntity.ok(createdAccountDetails);
         }catch (ResourceNotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ResourceConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

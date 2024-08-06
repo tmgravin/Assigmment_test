@@ -121,7 +121,7 @@ public class UserServiceImpl implements UsersService {
     @Transactional
     public Users loginUser(String email, String password) {
         try {
-            Users user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Email don't match."));
+            Users user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Email not found."));
             if (user.getPassword().equals(bCryptPasswordEncoder.encode(user.getPassword())))
             {
                 if (user.getIsEmailVerified() == 'N') {
@@ -269,10 +269,9 @@ public class UserServiceImpl implements UsersService {
     public void changePassword(UsersDto usersDto) {
         try {
             Users users = userRepository.findById(usersDto.getId()).orElseThrow(() -> new ResourceNotFoundException("User doesn't exist with this Id."));
-            if(!bCryptPasswordEncoder.encode(usersDto.getOldPassword()).equals(users.getPassword())){
+            if(!bCryptPasswordEncoder.matches(usersDto.getOldPassword(), users.getPassword())){
                 throw new IllegalArgumentException("Old password is incorrect.");
             }
-//            users.setPassword(DigestUtils.md5DigestAsHex(usersDto.newPassword.getBytes()));
             users.setPassword(bCryptPasswordEncoder.encode(usersDto.newPassword));
             userRepository.save(users);
         } catch (IllegalArgumentException | ResourceNotFoundException e) {

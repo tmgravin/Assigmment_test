@@ -50,7 +50,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 //        response.getWriter().write(LoginUtils.geUserInfo().getId().toString());
         
         // Redirect to the default success URL
-        response.sendRedirect("/api/security/user");
+        response.sendRedirect("/api/security/users");
         
         response.getWriter().flush();
     }

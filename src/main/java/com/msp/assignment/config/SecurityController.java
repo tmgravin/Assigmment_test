@@ -1,10 +1,13 @@
 package com.msp.assignment.config;
 
+import com.msp.assignment.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -53,12 +56,13 @@ public class SecurityController
 
 //            return ResponseEntity.ok().body(jwtUtil.generateToken(authRequest.getEmail()));
             return ResponseEntity.ok().body(LoginUtils.geUserInfo());
-        }
-        catch(Exception e)
-        {
-        	e.printStackTrace();
-        	return ResponseEntity.internalServerError().body(e.getLocalizedMessage());
-        }
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+		}catch (InternalAuthenticationServiceException e){
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
     }
     
     @GetMapping("/user-login")
@@ -81,8 +85,8 @@ public class SecurityController
 		log.info("INSIDE OUT METHOD OF SecurityController: ");
 		return ResponseEntity.ok().body("LOGOUT");
 	}
-	
-	@GetMapping("/user")
+
+	@GetMapping("/users")
 	public ResponseEntity<?> user()
 	{
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

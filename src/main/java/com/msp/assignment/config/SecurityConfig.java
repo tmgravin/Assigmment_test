@@ -28,13 +28,15 @@ public class SecurityConfig
                     .csrf(csrf -> csrf.disable())  // Disable CSRF for simplicity, you might want to enable it in production
                     .authorizeHttpRequests(authorize -> authorize
                                     .requestMatchers("/api/security/**").permitAll()
-                                    .requestMatchers("/api/users/verifyEmail/**").permitAll()
+                                    .requestMatchers("/api/users/verifyEmail/**","/api/users/verifyResetCode/**",
+                                            "/api/users/resetPassword/**", "/api/users/requestEmailToken/**",
+                                            "/api/users/forgetPassword/**","/api/users/signup/**", "/api/users/verifyEmail" ).permitAll()
+
                                     // for swagger
                                     .requestMatchers(
                                     		"/v2/api-docs", "/v3/api-docs", "/swagger-ui/index.html",
                                     		"/swagger-resources/**", "/swagger-ui.html","/webjars/**"
                                     ).permitAll()
-                                    .requestMatchers(HttpMethod.POST, "/api/users/**").permitAll()
                                     .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll()
                                     .requestMatchers(HttpMethod.GET, "/api/featureImages/**").permitAll()
 //                                    .requestMatchers(HttpMethod.POST, "/api/users/**").permitAll() // Allow only POST requests
@@ -45,7 +47,7 @@ public class SecurityConfig
                                     .loginProcessingUrl("/api/security/login")
 //                                    .usernameParameter("email")
 //                                    .passwordParameter("password")
-                                    .defaultSuccessUrl("/api/security/user", true) // Redirect to __ on success
+                                    .defaultSuccessUrl("/api/security/users", true) // Redirect to __ on success
                                     .successHandler(customAuthenticationSuccessHandler1())
                                     .failureUrl("/api/security/user-login")
                                     .permitAll() // Allow everyone to see the login page

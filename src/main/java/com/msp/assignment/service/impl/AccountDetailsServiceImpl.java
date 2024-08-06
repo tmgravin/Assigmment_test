@@ -1,5 +1,6 @@
 package com.msp.assignment.service.impl;
 
+import com.msp.assignment.exception.ResourceConflictException;
 import com.msp.assignment.exception.ResourceNotFoundException;
 import com.msp.assignment.model.AccountDetails;
 import com.msp.assignment.repository.AccountDetailsRepo;
@@ -8,6 +9,7 @@ import com.msp.assignment.service.AccountDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,26 +19,24 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Autowired
     private AccountDetailsRepo accountDetailsRepo;
 
-
     @Autowired
     private UsersRepository usersRepository;
 
     @Override
-    public Object getAccountDetails(Long id) {
+    public List<AccountDetails> getAccountDetails(Long userId) {
         try {
-            if(id != null){
-                Optional<AccountDetails> accountDetail = accountDetailsRepo.findById(id);
-                return accountDetail.orElseThrow(()-> new ResourceNotFoundException("Account details not found for this account id: " +id));
-            }else{
-                List<AccountDetails> accountDetails = accountDetailsRepo.findAll();
-                if(accountDetails.isEmpty()){
-                    throw new ResourceNotFoundException("Account details list is empty.");
+            if(userId != null) {
+                List<AccountDetails> accountDetails = accountDetailsRepo.findByUsersId(userId);
+                if (accountDetails.isEmpty()) {
+                    throw new ResourceNotFoundException("Account details not found for this account id: " + userId);
                 }
                 return accountDetails;
+            }else{
+                return accountDetailsRepo.findAll();
             }
-        }catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             throw e;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("Internal server error: " + e.getMessage(), e);
         }
     }
@@ -44,14 +44,19 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     public AccountDetails addAccountDetails(AccountDetails accountDetails) {
         Long userId = accountDetails.getUsers().getId();
-        if(!usersRepository.existsById(userId)){
-            throw new ResourceNotFoundException("User with Id "+ userId + "does not exist.");
+        try {
+            if (!usersRepository.existsById(userId)) {
+                throw new ResourceNotFoundException("User with Id " + userId + "does not exist.");
+            }
+            List<AccountDetails> existingDetails = accountDetailsRepo.findByUsersId(userId);
+            if (!existingDetails.isEmpty()) {
+                throw new ResourceConflictException("Account details for this user already exist.");
+            }
+            return accountDetailsRepo.save(accountDetails);
+        } catch (ResourceNotFoundException | ResourceConflictException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal server error: " + e.getMessage(), e);
         }
-        //Check if the user already has account details
-        List<AccountDetails> existingDetails = accountDetailsRepo.findByUsersId(userId);
-        if(!existingDetails.isEmpty()){
-            throw new ResourceNotFoundException("Account details for this user already exist.");
-        }
-        return accountDetailsRepo.save(accountDetails);
     }
 }

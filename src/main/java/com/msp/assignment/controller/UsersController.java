@@ -41,7 +41,7 @@ public class UsersController {
     }
 
     //Api for user signup and sending email verification email
-    @PostMapping("/")
+    @PostMapping("/signup")
     public ResponseEntity<String> signupUser(@RequestBody Users user, HttpSession session) {
         log.info("Inside signupUser method of UserController.");
         try {
