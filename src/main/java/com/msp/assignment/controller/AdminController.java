@@ -61,8 +61,20 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-
-    //Api for making the project visible
-
-
+    
+    // added by Ram Kumar Gautam 2081 Shawan 22
+    
+    @GetMapping("/sessions") // api for checking loggin/logout users
+	public ResponseEntity<?> getSessions(@RequestParam(name = "status", required = false) String status)
+	{
+    	log.info("Inside getSessions method of AdminController");
+    	try
+    	{
+            return ResponseEntity.ok(adminService.getSessionsByStatus(status));
+        }
+    	catch (Exception e)
+    	{
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+	}
 }
