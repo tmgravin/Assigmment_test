@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AccountDetailsService {
-    Optional<AccountDetails> get(Long id);
-    List<AccountDetails> getAll();
+    Object getAccountDetails(Long id);
 
     AccountDetails addAccountDetails(AccountDetails accountDetails);
 }
