@@ -2,7 +2,9 @@ package com.msp.assignment.service.impl;
 
 import com.msp.assignment.enumerated.UserType;
 import com.msp.assignment.exception.ResourceNotFoundException;
+import com.msp.assignment.model.SessionUsers;
 import com.msp.assignment.model.Users;
+import com.msp.assignment.repository.SessionUserRepo;
 import com.msp.assignment.repository.UsersRepository;
 import com.msp.assignment.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,9 @@ import java.util.Optional;
 public class AdminServiceImpl implements AdminService {
     @Autowired
     private UsersRepository usersRepository;
+    
+    @Autowired
+    private SessionUserRepo sessionUserRepo;
 
     @Override
     @Transactional
@@ -62,4 +67,17 @@ public class AdminServiceImpl implements AdminService {
             throw new RuntimeException("Internal server error: " + e.getMessage(), e);
         }
     }
+    
+    // added by ram kumar
+    
+	@Override
+	public List<SessionUsers> getSessionsByStatus(String status)
+	{
+		if(status.compareToIgnoreCase("login") == 0)
+			return sessionUserRepo.getLoggedInUsers();
+		else if(status.compareToIgnoreCase("logout") == 0)
+			return sessionUserRepo.getLoggedOutUsers();
+		else
+			return sessionUserRepo.findAll();
+	}
 }

@@ -12,9 +12,9 @@ import com.msp.assignment.repository.UsersVerificationRepo;
 import com.msp.assignment.service.UsersService;
 import com.msp.assignment.utils.MailUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.DigestUtils;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -35,6 +35,9 @@ public class UserServiceImpl implements UsersService {
 
     @Autowired
     private MailUtils mailUtils;
+    
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     @Transactional
@@ -43,7 +46,8 @@ public class UserServiceImpl implements UsersService {
             if (user.getPassword() == null || user.getPassword().isEmpty()) {
                 throw new IllegalArgumentException("Password cannot be empty.");
             }
-            user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
+//            user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             user.setIsEmailVerified('N');
             Users users = userRepository.save(user);
 
@@ -118,7 +122,8 @@ public class UserServiceImpl implements UsersService {
     public Users loginUser(String email, String password) {
         try {
             Users user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Email don't match."));
-            if (user.getPassword().equals(DigestUtils.md5DigestAsHex(password.getBytes()))) {
+            if (user.getPassword().equals(bCryptPasswordEncoder.encode(user.getPassword())))
+            {
                 if (user.getIsEmailVerified() == 'N') {
                     throw new IllegalStateException("User is not verified, please verify your email before login.");
                 }
@@ -248,7 +253,7 @@ public class UserServiceImpl implements UsersService {
             ForgetPassword forgetPassword = forgetPasswordRepo.findByIsVerified("Y").orElseThrow(() -> new ResourceNotFoundException("Password reset code is not verified."));
 
             Users users = userRepository.findById(forgetPassword.getUsers().getId()).orElseThrow(() -> new ResourceNotFoundException("User doesn't exist with this Id."));
-            users.setPassword(DigestUtils.md5DigestAsHex(Password.getBytes()));
+            users.setPassword(bCryptPasswordEncoder.encode(users.getPassword()));
             userRepository.save(users);
 
             forgetPasswordRepo.deleteByUsersId(forgetPassword.getUsers().getId());
@@ -264,16 +269,29 @@ public class UserServiceImpl implements UsersService {
     public void changePassword(UsersDto usersDto) {
         try {
             Users users = userRepository.findById(usersDto.getId()).orElseThrow(() -> new ResourceNotFoundException("User doesn't exist with this Id."));
-            if(!DigestUtils.md5DigestAsHex(usersDto.getOldPassword().getBytes()).equals(users.getPassword())){
+            if(!bCryptPasswordEncoder.encode(usersDto.getOldPassword()).equals(users.getPassword())){
                 throw new IllegalArgumentException("Old password is incorrect.");
             }
-            users.setPassword(DigestUtils.md5DigestAsHex(usersDto.newPassword.getBytes()));
+//            users.setPassword(DigestUtils.md5DigestAsHex(usersDto.newPassword.getBytes()));
+            users.setPassword(bCryptPasswordEncoder.encode(usersDto.newPassword));
             userRepository.save(users);
         } catch (IllegalArgumentException | ResourceNotFoundException e) {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Internal server error: " + e.getMessage(), e);
         }
+    }
+    
+    // added by Ram Kumar Gautam for security
+    @Override
+    @Transactional
+    public Users getUserByEmail(String email)
+    {
+    	Optional<Users> user = userRepository.findByEmail(email);
+    	if(user.isPresent())
+    		return user.get();
+    	else
+    		return new Users();
     }
 
 }

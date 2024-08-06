@@ -2,6 +2,7 @@ package com.msp.assignment.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -26,9 +27,17 @@ public class SecurityConfig
             http
                     .csrf(csrf -> csrf.disable())  // Disable CSRF for simplicity, you might want to enable it in production
                     .authorizeHttpRequests(authorize -> authorize
-                                    .requestMatchers("/api/security/**", "/api/users/signup/**", "/api/users/login/**").permitAll() // Allow access to /api/security/**
-//                                    .requestMatchers("/api/users/signup/**").permitAll()
-//                                    .requestMatchers("/api/users/login/**").permitAll()
+                                    .requestMatchers("/api/security/**").permitAll()
+                                    .requestMatchers("/api/users/verifyEmail/**").permitAll()
+                                    // for swagger
+                                    .requestMatchers(
+                                    		"/v2/api-docs", "/v3/api-docs", "/swagger-ui/index.html",
+                                    		"/swagger-resources/**", "/swagger-ui.html","/webjars/**"
+                                    ).permitAll()
+                                    .requestMatchers(HttpMethod.POST, "/api/users/**").permitAll()
+                                    .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll()
+                                    .requestMatchers(HttpMethod.GET, "/api/featureImages/**").permitAll()
+//                                    .requestMatchers(HttpMethod.POST, "/api/users/**").permitAll() // Allow only POST requests
                                     .anyRequest().authenticated() // All other requests require authentication
                     )
                     .formLogin(formLogin -> formLogin
