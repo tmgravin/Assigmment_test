@@ -27,11 +27,11 @@ public class SecurityConfig
             http
                     .csrf(csrf -> csrf.disable())  // Disable CSRF for simplicity, you might want to enable it in production
                     .authorizeHttpRequests(authorize -> authorize
+                                    .requestMatchers("/api/**").permitAll()
                                     .requestMatchers("/api/security/**").permitAll()
                                     .requestMatchers("/api/users/verifyEmail/**","/api/users/verifyResetCode/**",
                                             "/api/users/resetPassword/**", "/api/users/requestEmailToken/**",
                                             "/api/users/forgetPassword/**","/api/users/signup/**", "/api/users/verifyEmail" ).permitAll()
-
                                     // for swagger
                                     .requestMatchers(
                                     		"/v2/api-docs", "/v3/api-docs", "/swagger-ui/index.html",

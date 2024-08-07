@@ -12,11 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.msp.assignment.model.Users;
 
@@ -26,13 +22,11 @@ import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/security")
+//@CrossOrigin
 public class SecurityController
 {
 	@Autowired
     private AuthenticationManager authenticationManager;
-
-//    @Autowired
-//    private JwtUtil jwtUtil;
     
     private static final Logger log = LoggerFactory.getLogger(SecurityController.class);
 
@@ -69,7 +63,7 @@ public class SecurityController
 	public ResponseEntity<?> userLogin()
 	{
     	log.info("INSIDE USERLOGIN METHOD OF SecurityController: ");
-		return ResponseEntity.unprocessableEntity().body("GO TO LOGIN PAGE");
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("GO TO LOGIN PAGE");
 	}
 	
 	@GetMapping("/homepage")
