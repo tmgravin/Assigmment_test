@@ -28,7 +28,7 @@ public class SecurityConfig {
                                     .requestMatchers("/api/security/**").permitAll()
                                     .requestMatchers("/api/users/verifyEmail/**", "/api/users/verifyResetCode/**",
                                             "/api/users/resetPassword/**", "/api/users/requestEmailToken/**",
-                                            "/api/users/forgetPassword/**", "/api/users/signup/**", "/api/users/verifyEmail").permitAll()
+                                            "/api/users/forgetPassword/**", "/api/users/signup", "/api/users/verifyEmail").permitAll()
                                     .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll()
                                     .requestMatchers(HttpMethod.GET, "/api/featureImages/**").permitAll()
 
