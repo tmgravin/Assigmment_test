@@ -27,4 +27,6 @@ public interface UsersService {
     void resetPassword(String Password);
 
     void changePassword(UsersDto usersDto);
+    
+    Users getUserByEmail(String email);
 }

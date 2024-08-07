@@ -8,5 +8,5 @@ import java.util.Optional;
 public interface FeatureImageService {
     Object getImages(Optional<Long> id);
 
-    String addImage(FeatureImages featureImages, MultipartFile imageUrl);
+    String addImage(MultipartFile imageUrl);
 }

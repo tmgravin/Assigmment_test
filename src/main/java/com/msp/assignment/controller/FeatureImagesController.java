@@ -46,7 +46,7 @@ public class FeatureImagesController {
     public ResponseEntity<String> uploadImages(@RequestParam("image") MultipartFile imageUrl) {
         log.info("Inside uploadImages method of FeatureImagesController.");
         try {
-            featureImageService.addImage(new FeatureImages(), imageUrl);
+            featureImageService.addImage(imageUrl);
             return ResponseEntity.status(HttpStatus.OK).body("Image saved successfully.");
         } catch (FileUploadException e) {
             return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(e.getMessage());
