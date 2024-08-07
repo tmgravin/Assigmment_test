@@ -32,8 +32,11 @@ public class MspApplication {
 		System.setProperty("EMAIL_PASSWORD", dotenv.get("EMAIL_PASSWORD"));
 
 		// Set Swagar Resource environment variables as system properties
-		System.setProperty("SWAGAR_PATH", dotenv.get("SWAGAR_PATH"));
-		System.setProperty("SWAGAR_DOCS", dotenv.get("SWAGAR_DOCS"));
+//		System.setProperty("SWAGAR_PATH", dotenv.get("SWAGAR_PATH"));
+//		System.setProperty("SWAGAR_DOCS", dotenv.get("SWAGAR_DOCS"));
+
+		// Frontend Base Url Setup
+		System.setProperty("FRONTEND_URL", dotenv.get("FRONTEND_URL"));
 
 		SpringApplication.run(MspApplication.class, args);
 	}

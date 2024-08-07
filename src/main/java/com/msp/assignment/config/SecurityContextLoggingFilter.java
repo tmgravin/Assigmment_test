@@ -19,14 +19,6 @@ public class SecurityContextLoggingFilter extends OncePerRequestFilter
             throws ServletException, IOException
     {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        if (authentication != null)
-//        {
-//        	System.out.println("Authenticated user: " + authentication.getName());
-//        }
-//        else
-//        {
-//        	System.out.println("No authentication in security context");
-//        }
 //        System.out.println("Session ID: " + request.getSession().getId());
         filterChain.doFilter(request, response);
     }
