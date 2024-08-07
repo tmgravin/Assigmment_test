@@ -1,5 +1,6 @@
 package com.msp.assignment.service.impl;
 
+import com.msp.assignment.enumerated.ProjectStatus;
 import com.msp.assignment.model.Projects;
 import com.msp.assignment.model.ProjectsDetails;
 import com.msp.assignment.model.Users;
@@ -39,27 +40,11 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
         } else {
             return Optional.empty();
         }
-//    	Optional<ProjectsDetails> projectsDetails = projectDetailsRepo.findById(id);
-//    	projectsDetails.get().getProjects().setUsers(null);
-//        return projectsDetails;
+
     }
 
     @Override
-    public List<ProjectsDetails> getAll()
-    {List<ProjectsDetails> allProjectDetails = projectDetailsRepo.findAll();
-        allProjectDetails.forEach(projectDetails -> {
-            Projects projects = projectDetails.getProjects();
-            if (projects != null) {
-                Users users = projects.getUsers(); // Initialize lazy-loaded Users
-            }
-        });
-        return allProjectDetails;
-//    	List<ProjectsDetails> allProjectDetails = projectDetailsRepo.findAll();
-//    	allProjectDetails.stream().map(ProjectsDetails ->
-//    	{
-//          ProjectsDetails.getProjects().setUsers(null);
-//          return ProjectsDetails;
-//    	}).collect(Collectors.toList());
-//        return allProjectDetails;
+    public List<ProjectsDetails> getAll(){
+    return projectDetailsRepo.findByProjectStatus(ProjectStatus.PENDING);
     }
 }

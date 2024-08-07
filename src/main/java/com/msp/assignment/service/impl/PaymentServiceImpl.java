@@ -39,8 +39,6 @@ public class PaymentServiceImpl implements PaymentsService {
 
     @Override
     public Payments savePayment(double amount, PaymentMethod paymentMethod, MultipartFile screenshotUrl, Users users, Projects projects, Long id) {
-        log.info("Inside savePayment method of PaymentServiceImpl");
-
         try {
             // Create and save the payment record
             Payments payments;
@@ -67,9 +65,14 @@ public class PaymentServiceImpl implements PaymentsService {
 
             // Validate the payment amount
             double projectAmount = Double.parseDouble(project.getProjectAmount());
-            if (amount > projectAmount && amount != 0) {
-                log.error("Please input a valid amount");
-                throw new IllegalArgumentException("Please input valid amount");
+            if (amount <= 0 || amount > projectAmount) {
+                throw new RuntimeException("Forbidden request: Please input a valid amount");
+            }
+
+            // Calculate the total amount paid for the project
+            double totalPaid = paymentRepo.sumPaymentByProjectsId(projects.getId()) + amount;
+            if (totalPaid > projectAmount) {
+                throw new RuntimeException("Forbidden request: Total paid amount exceeds project amount");
             }
 
             payments.setAmount(amount);
@@ -91,38 +94,28 @@ public class PaymentServiceImpl implements PaymentsService {
 
                 // Save the screenshot record
                 paymentScreenshotRepo.save(paymentScreenshot);
-                log.info("Screenshot uploaded and saved to path: {}", filePath);
             }
-
-            // Calculate the total amount paid for the project
-            double totalPaid = paymentRepo.sumPaymentByProjectsId(projects.getId()) + amount;
 
             // Update the payment status based on the total amount paid compared to the project amount
             PaymentStatus paymentStatus;
-            if (totalPaid >= projectAmount) {
+            if (totalPaid == projectAmount) {
                 paymentStatus = PaymentStatus.COMPLETED;
-            } else if (totalPaid > 0) {
-                paymentStatus = PaymentStatus.INCOMPLETE;
             } else {
-                paymentStatus = PaymentStatus.PENDING;
+                paymentStatus = PaymentStatus.INCOMPLETE;
             }
             project.setPaymentStatus(paymentStatus);
 
             // Save the updated project record
             projectRepo.save(project);
 
-            // Log the successful payment save operation
-            log.info("Payment saved successfully for project ID: {}", savedPayment.getProjects().getId());
-
             // Return the saved payment record
             return savedPayment;
 
         } catch (Exception e) {
-            // Log and throw any other errors
-            log.error("Error saving payment: ", e);
             throw new RuntimeException("Error saving payment", e);
         }
     }
+
 
 
     @Override

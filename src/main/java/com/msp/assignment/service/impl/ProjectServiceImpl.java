@@ -137,9 +137,12 @@ public class ProjectServiceImpl implements ProjectService {
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
         // Check if the doer exists
-        Users doer = usersRepository.findById(doerId)
+        Users user = usersRepository.findById(doerId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if(!user.getUserType().equals(UserType.ASSIGNMENT_DOER)){
+            throw new RuntimeException("Forbidden request: Only ASSIGNMENT_DOER can apply for projects");
+        }
         // Check if the doer has already applied for the project
         ProjectApplication existingApplication = projectApplicationRepo.findByProjectIdAndDoerId(projectId, doerId);
         if (existingApplication != null) {
@@ -149,7 +152,7 @@ public class ProjectServiceImpl implements ProjectService {
         // Create a new application
         ProjectApplication application = new ProjectApplication();
         application.setProjects(project);
-        application.setDoer(doer);
+        application.setDoer(user);
         application.setStatus(ApplicationStatus.PENDING);
 
         return projectApplicationRepo.save(application);

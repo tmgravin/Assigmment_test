@@ -1,6 +1,5 @@
 package com.msp.assignment.model;
 
-import com.msp.assignment.enumerated.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,9 +18,12 @@ public class CompletedProject {
     @JoinColumn(name = "project_id", nullable = false)
     private Projects project;
 
-
     @Column(name = "file", columnDefinition = "TEXT", nullable = false)
     private String file;
+
+    @ManyToOne
+    @JoinColumn(name = "doer_id", nullable = false)
+    private Users doer;
 
     @Column(name = "completion_date", nullable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp completionDate;

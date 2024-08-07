@@ -1,13 +1,14 @@
 package com.msp.assignment.controller;
 
-import com.msp.assignment.model.CompletedProject;
+
 import com.msp.assignment.model.Projects;
+import com.msp.assignment.model.Users;
 import com.msp.assignment.service.CompletedProjectService;
+import com.msp.assignment.service.UsersService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +17,7 @@ import java.io.IOException;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/competed/project")
+@RequestMapping("/api/completed/project")
 public class CompletedProjectController {
     @Autowired
     private CompletedProjectService completedProjectService;
@@ -24,16 +25,32 @@ public class CompletedProjectController {
 
     private static final Logger log = LoggerFactory.getLogger(CompletedProjectController.class);
 
-    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CompletedProject> addCompleetedProject(@RequestParam("project") Projects project, @RequestParam("file") MultipartFile file) {
-        log.info("Inside addCompleetedProject method of CompletedProjectController");
+
+        @Autowired
+        private UsersService userService;
+
+        @PostMapping("/")
+        public ResponseEntity<String> addCompletedProject(@RequestParam("projectId") Projects projectId,
+                                                          @RequestParam("file") MultipartFile file,
+                                                          @RequestParam("doerId") Users doerId) throws IOException {
+
+            completedProjectService.addCompletedProject(projectId, file, doerId);
+
+            return ResponseEntity.ok("Completed project added successfully.");
+        }
+
+
+    @GetMapping("/")
+    public ResponseEntity<String> getCompletedProjectById(@RequestParam Long userId, @RequestParam Long completedProjectId) {
         try {
-            CompletedProject completedProject = completedProjectService.addCompletedProject(project, file);
-            log.info("Add Completed Project Successfully {}", completedProject.getId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(completedProject);
+            String file = completedProjectService.getCompletedProjectById(userId, completedProjectId);
+            if (file != null) {
+                return ResponseEntity.ok(file);
+            } else {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+            }
         } catch (Exception e) {
-            log.error("Error while adding completed project: ", e); // Log the exception message
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-}
+    }

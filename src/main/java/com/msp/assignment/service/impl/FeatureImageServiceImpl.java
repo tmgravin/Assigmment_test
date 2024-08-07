@@ -5,7 +5,7 @@ import com.msp.assignment.exception.ResourceNotFoundException;
 import com.msp.assignment.model.FeatureImages;
 import com.msp.assignment.repository.FeatureImagesRepo;
 import com.msp.assignment.service.FeatureImageService;
-import com.msp.assignment.utils.FeatureUtils;
+import com.msp.assignment.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class FeatureImageServiceImpl implements FeatureImageService {
     private FeatureImagesRepo featureImagesRepo;
 
     @Autowired
-    private FeatureUtils featureUtils;
+    private FileUtils fileUtils;
 
     @Value("${S3_BASE_URL}")
     private String s3BaseUrl;
@@ -53,9 +53,9 @@ public class FeatureImageServiceImpl implements FeatureImageService {
     public String addImage(FeatureImages featureImages, MultipartFile file) {
         try {
             if (file != null && !file.isEmpty()) {
-                String fileName = featureUtils.generateFileName(file);
-                featureUtils.deleteFileIfExists(fileName);
-                featureUtils.saveFile(file, fileName);
+                String fileName = fileUtils.generateFileName(file);
+                fileUtils.deleteFileIfExists(fileName);
+                fileUtils.saveFile(file, fileName);
                 featureImages.setImageUrl(s3BaseUrl+fileName);
 
                 featureImagesRepo.save(featureImages);
