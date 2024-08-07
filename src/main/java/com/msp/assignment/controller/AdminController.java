@@ -3,8 +3,10 @@ package com.msp.assignment.controller;
 import com.msp.assignment.dto.UsersDto;
 import com.msp.assignment.enumerated.UserType;
 import com.msp.assignment.exception.ResourceNotFoundException;
+import com.msp.assignment.model.Payments;
 import com.msp.assignment.model.Users;
 import com.msp.assignment.service.AdminService;
+import com.msp.assignment.service.PaymentsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ public class AdminController {
     private static final Logger log = LoggerFactory.getLogger(UsersController.class);
     @Autowired
     private AdminService adminService;
+
 
     //Api for get users by id and get all users
     @GetMapping("/")
@@ -77,4 +80,10 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
 	}
+
+    @PostMapping("/payment/approve")
+    public ResponseEntity<Payments> approvePayment(@RequestParam Long id){
+        Payments approvePayment = adminService.approvePayment(id);
+        return ResponseEntity.status(HttpStatus.OK).body(approvePayment);
+    }
 }

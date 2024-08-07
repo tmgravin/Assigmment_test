@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/api/payment")
@@ -38,9 +40,10 @@ public class PaymentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-//
-//    @GetMapping("/")
-//    public ResponseEntity<Payments> getPayments(@RequestParam(name="id", required = false) Long id){
-//
-//    }
+
+    @GetMapping("/")
+    public ResponseEntity<Optional<Payments>> getPayments(@RequestParam(name="id", required = false) Long id){
+        Optional<Payments> payments = paymentsService.getPayments(id);
+        return ResponseEntity.status(HttpStatus.OK).body(payments);
+    }
 }

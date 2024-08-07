@@ -2,8 +2,10 @@ package com.msp.assignment.service.impl;
 
 import com.msp.assignment.enumerated.UserType;
 import com.msp.assignment.exception.ResourceNotFoundException;
+import com.msp.assignment.model.Payments;
 import com.msp.assignment.model.SessionUsers;
 import com.msp.assignment.model.Users;
+import com.msp.assignment.repository.PaymentRepo;
 import com.msp.assignment.repository.SessionUserRepo;
 import com.msp.assignment.repository.UsersRepository;
 import com.msp.assignment.service.AdminService;
@@ -21,6 +23,8 @@ public class AdminServiceImpl implements AdminService {
     
     @Autowired
     private SessionUserRepo sessionUserRepo;
+    @Autowired
+    private PaymentRepo paymentRepo;
 
     @Override
     @Transactional
@@ -80,4 +84,14 @@ public class AdminServiceImpl implements AdminService {
 		else
 			return sessionUserRepo.findAll();
 	}
+
+    @Override
+    public Payments approvePayment(Long id) {
+        Payments payments=paymentRepo.findById(id).get();
+        if(payments == null){
+            throw new RuntimeException("The Payment does not exist");
+        }
+       payments.setIsPaymentVerified("Y");
+        return payments;
+    }
 }
