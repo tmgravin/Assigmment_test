@@ -24,7 +24,7 @@ public class FeatureImageServiceImpl implements FeatureImageService {
     private FileUtils fileUtils;
 
     @Value("${S3_BASE_URL}")
-    private String S3BaseUrl;
+    private String s3BaseUrl;
 
     @Override
     public Object getImages(Optional<Long> id) {
@@ -50,14 +50,15 @@ public class FeatureImageServiceImpl implements FeatureImageService {
     }
 
     @Override
-    public String addImage( MultipartFile file) {
+    public String addImage(MultipartFile file) {
         try {
+            FeatureImages featureImages=new FeatureImages();
+
             if (file != null && !file.isEmpty()) {
-                FeatureImages featureImages = new FeatureImages();
                 String fileName = fileUtils.generateFileName(file);
-                fileUtils.saveFile(file, fileName);
                 fileUtils.deleteFileIfExists(fileName);
-                featureImages.setImageUrl(S3BaseUrl+fileName);
+                fileUtils.saveFile(file, fileName);
+                featureImages.setImageUrl(s3BaseUrl+fileName);
 
                 featureImagesRepo.save(featureImages);
                 return "Feature image uploaded successfully: " + fileName;

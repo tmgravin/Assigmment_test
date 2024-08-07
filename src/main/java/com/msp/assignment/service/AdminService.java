@@ -1,6 +1,7 @@
 package com.msp.assignment.service;
 
 import com.msp.assignment.enumerated.UserType;
+import com.msp.assignment.model.Payments;
 import com.msp.assignment.model.SessionUsers;
 import com.msp.assignment.model.Users;
 
@@ -14,5 +15,6 @@ public interface AdminService {
     Integer countUsersByUserType(UserType userType);
     
     List<SessionUsers> getSessionsByStatus(String status);
+    Payments approvePayment(Long id);
 
 }

@@ -1,6 +1,7 @@
 package com.msp.assignment.repository;
 
 
+import com.msp.assignment.enumerated.ProjectStatus;
 import com.msp.assignment.model.ProjectsDetails;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,12 +17,13 @@ public interface ProjectDetailsRepo extends JpaRepository<ProjectsDetails, Long>
     @EntityGraph(attributePaths = {"projects", "projects.users"})
     Optional<ProjectsDetails> findById(Long id);
 
-    @EntityGraph(attributePaths = {"projects", "projects.users"})
-    List<ProjectsDetails> findAll();
+//    @EntityGraph(attributePaths = {"projects", "projects.users"})
+//    List<ProjectsDetails> findAll();
 
     @Query("SELECT pd FROM ProjectsDetails pd JOIN FETCH pd.projects p JOIN FETCH p.users WHERE p.users.id = :userId")
     List<ProjectsDetails> findProjectsDetailsByUserId(@Param("userId") Long userId);
 
     Optional<ProjectsDetails> findByProjectsId(Long projectsId);
 
+    List<ProjectsDetails> findByProjectStatus(ProjectStatus projectStatus);
 }

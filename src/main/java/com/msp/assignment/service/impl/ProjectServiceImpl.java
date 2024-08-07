@@ -12,6 +12,7 @@ import com.msp.assignment.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,7 +20,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -39,6 +40,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Autowired
     private ProjectApplicationRepo projectApplicationRepo;
+
+
+    @Value("${S3_BASE_URL}")
+    private String s3BaseUrl;
 
     @Override
     public Projects addProject(
@@ -91,7 +96,7 @@ public class ProjectServiceImpl implements ProjectService {
                 // Generate a unique file name and save the file
                 String filePath = fileUtils.generateFileName(projectUrl);  // Ensure fileUtils has the appropriate method for storing files
                 fileUtils.saveFile(projectUrl, filePath);  // Save the file to the desired location
-                projectsDetails.setProjectUrl(filePath);  // Save the file path or URL to the database
+                projectsDetails.setProjectUrl(s3BaseUrl + filePath);  // Save the file path or URL to the database
                 log.info("File uploaded and saved to path: {}", filePath);
             }
 
@@ -132,9 +137,12 @@ public class ProjectServiceImpl implements ProjectService {
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
         // Check if the doer exists
-        Users doer = usersRepository.findById(doerId)
+        Users user = usersRepository.findById(doerId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if(!user.getUserType().equals(UserType.ASSIGNMENT_DOER)){
+            throw new RuntimeException("Forbidden request: Only ASSIGNMENT_DOER can apply for projects");
+        }
         // Check if the doer has already applied for the project
         ProjectApplication existingApplication = projectApplicationRepo.findByProjectIdAndDoerId(projectId, doerId);
         if (existingApplication != null) {
@@ -144,7 +152,7 @@ public class ProjectServiceImpl implements ProjectService {
         // Create a new application
         ProjectApplication application = new ProjectApplication();
         application.setProjects(project);
-        application.setDoer(doer);
+        application.setDoer(user);
         application.setStatus(ApplicationStatus.PENDING);
 
         return projectApplicationRepo.save(application);
@@ -153,7 +161,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectApplication acceptProjectApplication(Long applicationId) {
         log.info("Inside acceptProjectApplication method of ProjectServiceImpl (com.msp.assignment.service.impl)");
-
 
 
         // Find the application to be accepted
@@ -189,7 +196,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         return acceptedApplication;
     }
-
 
 
     @Override
