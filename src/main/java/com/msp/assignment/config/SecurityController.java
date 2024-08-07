@@ -12,11 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.msp.assignment.model.Users;
 
@@ -26,13 +22,11 @@ import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/security")
+//@CrossOrigin
 public class SecurityController
 {
 	@Autowired
     private AuthenticationManager authenticationManager;
-
-//    @Autowired
-//    private JwtUtil jwtUtil;
     
     private static final Logger log = LoggerFactory.getLogger(SecurityController.class);
 
@@ -40,7 +34,7 @@ public class SecurityController
     public ResponseEntity<?> login(@RequestBody Users authRequest, HttpServletRequest request, HttpServletResponse response)
     {
     	
-    	log.info("INSIDE LOGIN METHOD OF SecurityController: " + authRequest.getEmail());
+    	log.info("Inside login method of SecurityController: " + authRequest.getEmail());
         try
         {
         	Authentication authentication = authenticationManager.authenticate(
@@ -56,11 +50,7 @@ public class SecurityController
 
 //            return ResponseEntity.ok().body(jwtUtil.generateToken(authRequest.getEmail()));
             return ResponseEntity.ok().body(LoginUtils.geUserInfo());
-		} catch (IllegalStateException e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-		}catch (InternalAuthenticationServiceException e){
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-		} catch (RuntimeException e) {
+		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
     }
@@ -68,21 +58,14 @@ public class SecurityController
     @GetMapping("/user-login")
 	public ResponseEntity<?> userLogin()
 	{
-    	log.info("INSIDE USERLOGIN METHOD OF SecurityController: ");
-		return ResponseEntity.unprocessableEntity().body("GO TO LOGIN PAGE");
+    	log.info("Inside user-login method of SecurityController: ");
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login before accessing other page.");
 	}
 	
-	@GetMapping("/homepage")
-	public ResponseEntity<?> homepage()
-	{
-		log.info("INSIDE HOMEPAGE METHOD OF SecurityController: ");
-		return ResponseEntity.ok().body("GO TO HOMEPAGE");
-	}
-	
-	@GetMapping("/out")
+	@PostMapping("/logout")
 	public ResponseEntity<?> out()
 	{
-		log.info("INSIDE OUT METHOD OF SecurityController: ");
+		log.info("Inside logout method of SecurityController: ");
 		return ResponseEntity.ok().body("LOGOUT");
 	}
 
@@ -90,7 +73,7 @@ public class SecurityController
 	public ResponseEntity<?> user()
 	{
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		log.info("INSIDE USER METHOD OF SecurityController: " + authentication.getName());
+		log.info("Inside user method of SecurityController: " + authentication.getName());
 		return ResponseEntity.ok().body(LoginUtils.geUserInfo());
 	}
 }

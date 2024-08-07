@@ -21,7 +21,7 @@ public class AccountDetailsController {
     @Autowired
     private AccountDetailsService accountDetailsService;
 
-    //Api for getting bank details by userId and all bank details
+    //Api for getting bank details by userId or all bank details
     @GetMapping("/")
     public ResponseEntity<?> getAccountDetails(@RequestParam(name = "userId", required = false) Long userId){
         log.info("Inside getAccountDetails method of AccountDetailsController.");
