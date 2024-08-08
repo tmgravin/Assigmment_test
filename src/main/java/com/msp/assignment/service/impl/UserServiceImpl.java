@@ -122,7 +122,8 @@ public class UserServiceImpl implements UsersService {
     public Users loginUser(String email, String password) {
         try {
             Users user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Email not found."));
-            if (user.getPassword().equals(bCryptPasswordEncoder.encode(user.getPassword())))
+            if (
+                    user.getPassword().equals(bCryptPasswordEncoder.encode(user.getPassword())))
             {
                 if (user.getIsEmailVerified() == 'N') {
                     throw new IllegalStateException("User is not verified, please verify your email before login.");

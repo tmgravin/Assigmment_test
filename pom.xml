@@ -131,7 +131,77 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>com.msp.assignment.MspApplication</mainClass>
+                            <systemProperties>
+                                <property>
+                                    <name>AWS_ACCESS_KEY_ID</name>
+                                    <value>${env.AWS_ACCESS_KEY_ID}</value>
+                                </property>
+                                <property>
+                                    <name>AWS_SECRET_ACCESS_KEY</name>
+                                    <value>${env.AWS_SECRET_ACCESS_KEY}</value>
+                                </property>
+                                <property>
+                                    <name>AWS_REGION</name>
+                                    <value>${env.AWS_REGION}</value>
+                                </property>
+                                <property>
+                                    <name>S3_BUCKET_NAME</name>
+                                    <value>${env.S3_BUCKET_NAME}</value>
+                                </property>
+                                <property>
+                                    <name>S3_BASE_URL</name>
+                                    <value>${env.S3_BASE_URL}</value>
+                                </property>
+                                <property>
+                                    <name>DB_USERNAME</name>
+                                    <value>${env.DB_USERNAME}</value>
+                                </property>
+                                <property>
+                                    <name>DB_PASSWORD</name>
+                                    <value>${env.DB_PASSWORD}</value>
+                                </property>
+                                <property>
+                                    <name>DB_HOST</name>
+                                    <value>${env.DB_HOST}</value>
+                                </property>
+                                <property>
+                                    <name>DATABASE</name>
+                                    <value>${env.DATABASE}</value>
+                                </property>
+                                <property>
+                                    <name>SERVER_PORT</name>
+                                    <value>${env.SERVER_PORT}</value>
+                                </property>
+                                <property>
+                                    <name>EMAIL_USERNAME</name>
+                                    <value>${env.EMAIL_USERNAME}</value>
+                                </property>
+                                <property>
+                                    <name>EMAIL_PASSWORD</name>
+                                    <value>${env.EMAIL_PASSWORD}</value>
+                                </property>
+                                <property>
+                                    <name>FRONTEND_URL</name>
+                                    <value>${env.FRONTEND_URL}</value>
+                                </property>
+                            </systemProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+
     </build>
     <repositories>
         <repository>
