@@ -18,8 +18,9 @@ phases:
       - export EMAIL_PASSWORD="apcd jiia brgu gezs"
       - export FRONTEND_URL=54.173.110.235:3000
       - export DB_HOST=mspacademy.cun6qh72hxrl.us-east-1.rds.amazonaws.com
-      - java -jar MSP-0.0.1-SNAPSHOT.jar
+      
       - mvn clean install
+      - java -jar MSP-0.0.1-SNAPSHOT.jar
   post_build:
     commands:
       - echo Build completed
