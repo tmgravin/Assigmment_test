@@ -15,7 +15,6 @@ import java.util.Optional;
 
 @Service
 public class AccountDetailsServiceImpl implements AccountDetailsService {
-
     @Autowired
     private AccountDetailsRepo accountDetailsRepo;
 
@@ -25,13 +24,13 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     public List<AccountDetails> getAccountDetails(Long userId) {
         try {
-            if(userId != null) {
+            if (userId != null) {
                 List<AccountDetails> accountDetails = accountDetailsRepo.findByUsersId(userId);
                 if (accountDetails.isEmpty()) {
                     throw new ResourceNotFoundException("Account details not found for this account id: " + userId);
                 }
                 return accountDetails;
-            }else{
+            } else {
                 return accountDetailsRepo.findAll();
             }
         } catch (ResourceNotFoundException e) {
@@ -59,4 +58,23 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
             throw new RuntimeException("Internal server error: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public AccountDetails updateAccountDetails(Long id, AccountDetails accountDetails) {
+        try {
+            AccountDetails existingDetails = accountDetailsRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account details not found with id: " + id));
+            existingDetails.setAccountNumber(accountDetails.getAccountNumber());
+            existingDetails.setBankName(accountDetails.getBankName());
+            existingDetails.setFirstName(accountDetails.getFirstName());
+            existingDetails.setLastName(accountDetails.getLastName());
+            existingDetails.setRegisteredPhoneNumber(accountDetails.getRegisteredPhoneNumber());
+
+            return accountDetailsRepo.save(existingDetails);
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal server error: " + e.getMessage(), e);
+        }
+    }
 }
+

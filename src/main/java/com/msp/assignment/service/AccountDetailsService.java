@@ -8,4 +8,6 @@ public interface AccountDetailsService {
     List<AccountDetails> getAccountDetails(Long userId);
 
     AccountDetails addAccountDetails(AccountDetails accountDetails);
+
+    AccountDetails updateAccountDetails(Long id, AccountDetails accountDetails);
 }

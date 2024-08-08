@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/security")
-//@CrossOrigin
+@CrossOrigin
 public class SecurityController
 {
 	@Autowired

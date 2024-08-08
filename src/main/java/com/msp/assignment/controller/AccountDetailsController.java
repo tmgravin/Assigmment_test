@@ -23,14 +23,14 @@ public class AccountDetailsController {
 
     //Api for getting bank details by userId or all bank details
     @GetMapping("/")
-    public ResponseEntity<?> getAccountDetails(@RequestParam(name = "userId", required = false) Long userId){
+    public ResponseEntity<?> getAccountDetails(@RequestParam(name = "userId", required = false) Long userId) {
         log.info("Inside getAccountDetails method of AccountDetailsController.");
-        try{
+        try {
             List<AccountDetails> accountDetails = accountDetailsService.getAccountDetails(userId);
-                return ResponseEntity.ok(accountDetails);
-        }catch (ResourceNotFoundException e){
+            return ResponseEntity.ok(accountDetails);
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
@@ -42,7 +42,7 @@ public class AccountDetailsController {
         try {
             AccountDetails createdAccountDetails = accountDetailsService.addAccountDetails(accountDetails);
             return ResponseEntity.ok(createdAccountDetails);
-        }catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (ResourceConflictException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
@@ -51,4 +51,17 @@ public class AccountDetailsController {
         }
     }
 
+    //Api for updating bank details
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateAccountDetails(@PathVariable Long id, @RequestBody AccountDetails accountDetails) {
+        log.info("Inside updateAccountDetails method of AccountDetailsController.");
+        try {
+            AccountDetails updateDetails = accountDetailsService.updateAccountDetails(id, accountDetails);
+            return ResponseEntity.ok(updateDetails);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 }
