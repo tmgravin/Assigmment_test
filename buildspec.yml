@@ -1,4 +1,20 @@
 version: 0.2
+env:
+  secrets-manager:
+    AWS_ACCESS_KEY_ID: "arn:aws:secretsmanager:region:account-id:secret:secret-id-1:AWS_ACCESS_KEY_ID"
+    AWS_SECRET_ACCESS_KEY: "arn:aws:secretsmanager:region:account-id:secret:secret-id-1:AWS_SECRET_ACCESS_KEY"
+    DB_PASSWORD: "arn:aws:secretsmanager:region:account-id:secret:secret-id-2:DB_PASSWORD"
+    EMAIL_PASSWORD: "arn:aws:secretsmanager:region:account-id:secret:secret-id-3:EMAIL_PASSWORD"
+  variables:
+    AWS_REGION: "us-east-1"
+    S3_BUCKET_NAME: "msp-academy1"
+    S3_BASE_URL: "https://msp-academy1.s3.amazonaws.com/"
+    DB_USERNAME: "postgres"
+    SERVER_PORT: "8080"
+    DATABASE: "mspacademy"
+    EMAIL_USERNAME: "mspacademy0@gmail.com"
+    FRONTEND_URL: "54.173.110.235:3000"
+    DB_HOST: "mspacademy.cun6qh72hxrl.us-east-1.rds.amazonaws.com"
 phases:
   install:
     runtime-versions:
